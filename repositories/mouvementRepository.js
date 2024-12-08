@@ -1,22 +1,22 @@
-const db = require("../configs/db/claudexBars");
+const db = require("../configs/db/dataBase");
 
 class MouvementRepository {
   async save(mouvement) {
-    return await db.claudexBarsDB.query(
-      "INSERT INTO mouvements (code, produit_id, types, qte, stock, created_by, created_at) VALUES ( ?, ?, ?, ?, ?, ?, now());",
+    return await db.dBase.query(
+      "INSERT INTO mouvements (code, produit_id, fournisseur_id, types, qte, created_by, created_at) VALUES ( ?, ?, ?, ?, ?, ?, now());",
       [
         mouvement.code,
         mouvement.produitId,
+        mouvement.fournisseurId,
         mouvement.types,
         mouvement.qte,
-        mouvement.stock,
         mouvement.createdBy,
       ]
     );
   }
 
   async saveSortie(mouvement) {
-    return await db.claudexBarsDB.query(
+    return await db.dBase.query(
       "INSERT INTO mouvements (code, produit_id, facture_id, types, qte, pv, stock, created_by, created_at) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, now());",
       [
         mouvement.code,
@@ -32,13 +32,13 @@ class MouvementRepository {
   }
 
   async update(mouvement) {
-    return await db.claudexBarsDB.query(
+    return await db.dBase.query(
       `UPDATE mouvements
              SET code             = CASE WHEN ? IS NOT NULL THEN ? ELSE code END,
                  produit_id             = CASE WHEN ? IS NOT NULL THEN ? ELSE produit_id END,
+                 fournisseur_id         = CASE WHEN ? IS NOT NULL THEN ? ELSE fournisseur_id END,
                  types             = CASE WHEN ? IS NOT NULL THEN ? ELSE types END,
                  qte             = CASE WHEN ? IS NOT NULL THEN ? ELSE qte END,
-                 stock          = CASE WHEN ? IS NOT NULL THEN ? ELSE stock END,
                  updated_by        = ?,
                  updated_at        = now()
              WHERE id = ?`,
@@ -47,12 +47,12 @@ class MouvementRepository {
         mouvement.code,
         mouvement.produitId,
         mouvement.produitId,
+        mouvement.fournisseurId,
+        mouvement.fournisseurId,
         mouvement.types,
         mouvement.types,
         mouvement.qte,
         mouvement.qte,
-        mouvement.stock,
-        mouvement.stock,
         mouvement.updatedBy,
         mouvement.id,
       ]
@@ -61,30 +61,28 @@ class MouvementRepository {
 
   async findById(id) {
     return (
-      await db.claudexBarsDB.query(
+      await db.dBase.query(
         `SELECT m.id,
-                    m.code,
-                    m.produit_id      AS produitId,
-                    m.types,
-                    m.qte,
-                    m.stock,
-                    m.created_at      AS createdAt,
-                    m.created_by      AS createdBy,
-                    m.updated_at      As updatedAt,
-                    m.updated_by      AS updatedBy,
-                    m.deleted_at      As deletedAt,
-                    m.deleted_by      AS deletedBy,
-                    p.name            AS produit,
-                    mo.name           AS model,
-                    f.name            AS fournisseur
-            FROM mouvements m    
-                    INNER JOIN produits p on m.produit_id = p.id
-                    INNER JOIN models mo on p.model_id = mo.id
-                    INNER JOIN fournisseurs f on p.fournisseur_id = f.id
-            WHERE m.id = ?
-            AND m.stock= 'R1'
-            AND m.deleted_at IS NULL
-            GROUP BY m.id`,
+                m.code,
+                m.produit_id      AS produitId,
+                m.fournisseur_id      AS fournisseurId,
+                m.types,
+                m.qte,
+                m.created_at      AS createdAt,
+                m.created_by      AS createdBy,
+                m.updated_at      As updatedAt,
+                m.updated_by      AS updatedBy,
+                m.deleted_at      As deletedAt,
+                m.deleted_by      AS deletedBy,
+                p.name            AS produit,
+                p.categorie       AS model,
+                f.name            AS fournisseur
+        FROM mouvements m    
+                INNER JOIN produits p on m.produit_id = p.id
+                INNER JOIN fournisseurs f on m.fournisseur_id = f.id
+        WHERE m.id = ?
+        AND m.deleted_at IS NULL
+        GROUP BY m.id`,
         [id]
       )
     )[0];
@@ -92,7 +90,7 @@ class MouvementRepository {
 
   async findByIdRC(id) {
     return (
-      await db.claudexBarsDB.query(
+      await db.dBase.query(
         `SELECT m.id,
                     m.code,
                     m.produit_id      AS produitId,
@@ -121,40 +119,37 @@ class MouvementRepository {
     )[0];
   }
 
-  async findAllEntreeR1(limit, offset) {
-    return await db.claudexBarsDB.query(
+  async findAllEntree() {
+    return await db.dBase.query(
       `SELECT m.id,
-                    m.code,
-                    m.produit_id      AS produitId,
-                    m.types,
-                    m.qte,
-                    m.stock,
-                    m.created_at      AS createdAt,
-                    m.created_by      AS createdBy,
-                    m.updated_at      As updatedAt,
-                    m.updated_by      AS updatedBy,
-                    m.deleted_at      As deletedAt,
-                    m.deleted_by      AS deletedBy,
-                    p.name            AS produit,
-                    mo.name           AS model,
-                    f.name            AS fournisseur
-            FROM mouvements m    
-                    INNER JOIN produits p on m.produit_id = p.id
-                    INNER JOIN models mo on p.model_id = mo.id
-                    INNER JOIN fournisseurs f on p.fournisseur_id = f.id
-            WHERE m.deleted_at IS NULL
-            AND m.stock= 'R1'
-            AND m.types= 'ADD'
-            GROUP BY m.id 
-            ORDER BY m.id DESC
-            LIMIT ?
-            OFFSET ?`,
-      [limit, offset]
+              m.code,
+              m.produit_id      AS produitId,
+              m.fournisseur_id      AS fournisseurId,
+              m.types,
+              m.qte,
+              m.created_at      AS createdAt,
+              m.created_by      AS createdBy,
+              m.updated_at      As updatedAt,
+              m.updated_by      AS updatedBy,
+              m.deleted_at      As deletedAt,
+              m.deleted_by      AS deletedBy,
+              p.name            AS produit,
+              p.categorie       AS model,
+              f.name            AS fournisseur
+      FROM mouvements m    
+              INNER JOIN produits p on m.produit_id = p.id
+              INNER JOIN fournisseurs f on m.fournisseur_id = f.id
+      WHERE m.deleted_at IS NULL
+      AND m.types= 'ADD'
+      GROUP BY m.id 
+      ORDER BY m.id DESC
+      LIMIT 500
+            `
     );
   }
 
   async findAllEntreeRC(limit, offset) {
-    return await db.claudexBarsDB.query(
+    return await db.dBase.query(
       `SELECT m.id,
                     m.code,
                     m.produit_id      AS produitId,
@@ -186,7 +181,7 @@ class MouvementRepository {
   }
 
   async factureCode() {
-    return await db.claudexBarsDB.query(
+    return await db.dBase.query(
       `
         SELECT
         CAST(MONTH(f.created_at) AS VARCHAR(255)) as num_mois,
@@ -198,7 +193,7 @@ class MouvementRepository {
   }
 
   // async findAllEntreeRC(limit, offset) {
-  //   return await db.claudexBarsDB.query(
+  //   return await db.dBase.query(
   //           `SELECT m.id,
   //                   m.code,
   //                   m.produit_id      AS produitId,
@@ -226,7 +221,7 @@ class MouvementRepository {
   // }
 
   async findAllEntreeR1Dispo(limit, offset) {
-    return await db.claudexBarsDB.query(
+    return await db.dBase.query(
       `
             SELECT p.id as id, p.name as produit, m2.name as model, f.name as fournisseur,
               sum(case 
@@ -261,7 +256,7 @@ class MouvementRepository {
   }
 
   async findAllEntreeRCDispo(limit, offset) {
-    return await db.claudexBarsDB.query(
+    return await db.dBase.query(
       `
             SELECT p.id as id, p.name as produit, m2.name as model, f.name as fournisseur,
               sum(case 
@@ -296,7 +291,7 @@ class MouvementRepository {
   }
 
   async findAllVerifierStockR1DispoProduit(produitId) {
-    return await db.claudexBarsDB.query(
+    return await db.dBase.query(
       `
             SELECT p.id as id, p.name as produit, m2.name as model, f.name as fournisseur,
               sum(case 
@@ -329,7 +324,7 @@ class MouvementRepository {
   }
 
   async findAllVerifierStockRCDispoProduit(produitId) {
-    return await db.claudexBarsDB.query(
+    return await db.dBase.query(
       `
             SELECT p.id as id, p.name as produit, m2.name as model, f.name as fournisseur,
               sum(case 
@@ -362,7 +357,7 @@ class MouvementRepository {
   }
 
   async findAllStatReglementParMois() {
-    return await db.claudexBarsDB.query(
+    return await db.dBase.query(
       `
             SELECT
             CAST(ROW_NUMBER() OVER () AS VARCHAR(255)) AS id,
@@ -396,7 +391,7 @@ class MouvementRepository {
   }
 
   async findAllStatReglementParMoisTotal() {
-    return (await db.claudexBarsDB.query(
+    return (await db.dBase.query(
       `
         SELECT SUM(MontantTotal) AS Grand_Total
         FROM (
@@ -433,7 +428,7 @@ class MouvementRepository {
 
   async countFindAllEntreeR1Dispo() {
     return (
-      await db.claudexBarsDB.query(`
+      await db.dBase.query(`
         SELECT CAST(count(sous_requete.produitId) AS VARCHAR(255)) AS entreeR1DispoNumber 
         FROM
         (SELECT p.id as produitId, p.name as produit, m2.name as model, f.name as fournisseur,
@@ -469,7 +464,7 @@ class MouvementRepository {
 
   async countFindAllEntreeRCDispo() {
     return (
-      await db.claudexBarsDB.query(`
+      await db.dBase.query(`
         SELECT CAST(count(sous_requete.produitId) AS VARCHAR(255)) AS entreeRCDispoNumber 
         FROM
         (SELECT p.id as produitId, p.name as produit, m2.name as model, f.name as fournisseur,
@@ -505,7 +500,7 @@ class MouvementRepository {
 
   async countFindAllEntreeR1() {
     return (
-      await db.claudexBarsDB
+      await db.dBase
         .query(`SELECT CAST(count(id) AS VARCHAR(255)) AS entreeR1Number
                                                   FROM mouvements
                                                   WHERE deleted_by is null AND types='ADD' AND stock='R1'`)
@@ -514,7 +509,7 @@ class MouvementRepository {
 
   async countFindAllEntreeRC() {
     return (
-      await db.claudexBarsDB
+      await db.dBase
         .query(`SELECT CAST(count(id) AS VARCHAR(255)) AS entreeRCNumber
                                                   FROM mouvements
                                                   WHERE deleted_by is null AND types='ADD' AND stock='RC'`)
@@ -523,7 +518,7 @@ class MouvementRepository {
 
   async countFindAllEntreeRC() {
     return (
-      await db.claudexBarsDB
+      await db.dBase
         .query(`SELECT CAST(count(id) AS VARCHAR(255)) AS entreeRCNumber
                                                   FROM mouvements
                                                   WHERE deleted_by is null AND types='ADD' AND stock='RC'`)
@@ -531,20 +526,20 @@ class MouvementRepository {
   }
 
   // async delete(authUserId, produitId) {
-  //   return await db.claudexBarsDB.query(
+  //   return await db.dBase.query(
   //     "UPDATE mouvements SET deleted_at = now(), deleted_by = ? WHERE id = ?",
   //     [authUserId, produitId]
   //   );
   // }
 
   async delete(produitId) {
-    return await db.claudexBarsDB.query("DELETE FROM mouvements WHERE id = ?", [
+    return await db.dBase.query("DELETE FROM mouvements WHERE id = ?", [
       produitId,
     ]);
   }
 
   async deleteMouvementSortie(mouvementId) {
-    return await db.claudexBarsDB.query("DELETE FROM mouvements WHERE id = ?", [
+    return await db.dBase.query("DELETE FROM mouvements WHERE id = ?", [
       mouvementId,
     ]);
   }

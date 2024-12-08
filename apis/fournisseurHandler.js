@@ -106,34 +106,7 @@ exports.findFournisseur = async (request, response) => {
 
 exports.findAll = async (request, response) => {
     try {
-        const page = request.query.page;
-        const length = request.query.length;
-
-        if (page === undefined || page === null || page === '') {
-            return sendResponse(
-                response,
-                400,
-                "FAILURE",
-                "page attribute required",
-                null
-            );
-        }
-
-        if (length === undefined || length === null || length === '') {
-            return sendResponse(
-                response,
-                400,
-                "FAILURE",
-                "length attribute required",
-                null
-            );
-        }
-
-        const limit = parseInt(length);
-        const offset = (parseInt(page) - 1) * parseInt(length);
-
-        const fournisseurs = await fournisseurRepository.findAll(limit, offset);
-        const allFournisseursCount = await fournisseurRepository.countFindAllFournisseurs();
+        const fournisseurs = await fournisseurRepository.findAll();
 
         return sendResponse(
             response,
@@ -141,7 +114,6 @@ exports.findAll = async (request, response) => {
             "SUCCESS",
             "Request executed successfully",
             {
-                fournisseursNumber: allFournisseursCount.fournisseursNumber,
                 fournisseurs: fournisseurs
             }
         );

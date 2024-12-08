@@ -1,23 +1,23 @@
-const db = require("../configs/db/claudexBars");
+const db = require("../configs/db/dataBase");
 
 class FournisseurRepository {
 
     async save(fournisseur) {
-        return await db.claudexBarsDB.query(
+        return await db.dBase.query(
             "INSERT INTO fournisseurs(name, description, created_by, created_at) VALUES(?, ?, ?, now())",
             [fournisseur.name, fournisseur.description, fournisseur.createdBy]
         );
     }
 
     async findById(id) {
-        return (await db.claudexBarsDB.query(
+        return (await db.dBase.query(
             "SELECT id, name, description, created_at AS createdAt, created_by AS createdBy, updated_at As updatedAt, updated_by AS updatedBy, deleted_at As deletedAt, deleted_by AS deletedBy FROM fournisseurs WHERE deleted_at IS NULL AND id = ?",
             [id]
         ))[0];
     }
 
     async update(fournisseur) {
-        return await db.claudexBarsDB.query(
+        return await db.dBase.query(
             "UPDATE fournisseurs " +
             "SET" +
             "    name = CASE WHEN ? IS NOT NULL THEN ? ELSE name END," +
@@ -30,20 +30,14 @@ class FournisseurRepository {
         );
     }
 
-    async findAll(limit, offset) {
-        return await db.claudexBarsDB.query(
-            "SELECT id, name, description, created_at AS createdAt, created_by AS createdBy, updated_at As updatedAt, updated_by AS updatedBy, deleted_at As deletedAt, deleted_by AS deletedBy FROM fournisseurs WHERE deleted_at IS NULL ORDER BY id DESC LIMIT ? OFFSET ?",[limit, offset]
+    async findAll() {
+        return await db.dBase.query(
+            "SELECT id, name, description, created_at AS createdAt, created_by AS createdBy, updated_at As updatedAt, updated_by AS updatedBy, deleted_at As deletedAt, deleted_by AS deletedBy FROM fournisseurs WHERE deleted_at IS NULL ORDER BY id DESC"
         );
     }
 
-    async countFindAllFournisseurs() {
-        return (await db.claudexBarsDB.query(`SELECT CAST(count(id) AS VARCHAR(255)) AS fournisseursNumber
-                                                  FROM fournisseurs
-                                                  WHERE deleted_by is null;`))[0];
-    }
-
     async delete(authUserId, fournisseurId) {
-        return await db.claudexBarsDB.query(
+        return await db.dBase.query(
             "UPDATE fournisseurs SET deleted_at = now(), deleted_by = ? WHERE id = ?", [authUserId, fournisseurId]
         );
     }

@@ -9,10 +9,10 @@ function sendResponse(response, status, message, description, data, httpStatus) 
     response.status(httpStatus).json(new genericJsonResponse(status, message, description, data));
 }
 
-exports.addMouvementEntreeRC = async (request, response) => {
+exports.addMouvementEntreeR1 = async (request, response) => {
     try {
         const schema = require("../configs/JSONSchemas/addMouvement.json");
-        console.log("productObject ::", request.body);
+        // console.log("productObject ::", request.body);
         const valid = jsonValidator.validate(schema, request.body);
         if (!valid) {
             return sendResponse(
@@ -23,25 +23,25 @@ exports.addMouvementEntreeRC = async (request, response) => {
                 null
             );
         }
-        const entreeRCObject = {
+        const entreeR1Object = {
             code: request.body.code,
             produitId: request.body.produitId,
+            fournisseurId: request.body.fournisseurId,
             types: "ADD",
             qte: request.body.qte,
-            stock: "RC",
             createdBy: request.authUserId,
         };
-        const result = await mouvementRepository.save(entreeRCObject);
-        const savedEntreeRC = await mouvementRepository.findById(result.insertId);
+        const result = await mouvementRepository.save(entreeR1Object);
+        const savedEntreeR1 = await mouvementRepository.findById(result.insertId);
         sendResponse(
             response,
             200,
             "SUCCESS",
             "Request executed successfully",
-            savedEntreeRC
+            savedEntreeR1
         );
     } catch (e) {
-        logger.error(request.correlationId + " ==> Error caught in [addEntreeRC Mouvements] ==> " + e.stack);
+        logger.error(request.correlationId + " ==> Error caught in [addEntreeR1 Mouvements] ==> " + e.stack);
         sendResponse(
             response,
             500,
@@ -52,40 +52,40 @@ exports.addMouvementEntreeRC = async (request, response) => {
     }
 };
 
-exports.addMouvementSortieRC = async (request, response) => {
+exports.addMouvementSortieR1 = async (request, response) => {
     try {
-        const sortieRCObject = {
+        const sortieR1Object = {
             code: "ADD_PROD_FACT",
             produitId: request.body.produitId,
             factureId: request.body.factureId,
             types: "OUT",
             qte: request.body.qte,
-            stock: "RC",
+            stock: "R1",
             createdBy: request.authUserId,
         };
-        console.log("pdId :::", sortieRCObject.produitId);
-        const mouvementsSortieProduitRC = await mouvementRepository.findAllVerifierStockRCDispoProduit(sortieRCObject.produitId);
-        const stockDispo = Number(mouvementsSortieProduitRC[0].st_dispo)
-        const pv = Number(mouvementsSortieProduitRC[0].pv)
+        console.log("pdId :::", sortieR1Object.produitId);
+        const mouvementsSortieProduitR1 = await mouvementRepository.findAllVerifierStockR1DispoProduit(sortieR1Object.produitId);
+        const stockDispo = Number(mouvementsSortieProduitR1[0].st_dispo)
+        const pv = Number(mouvementsSortieProduitR1[0].pv)
         const sortieR1ObjectUpdateWithPv = {
             code: "ADD_PROD_FACT",
             produitId: request.body.produitId,
             factureId: request.body.factureId,
             types: "OUT",
             qte: request.body.qte,
-            stock: "RC",
+            stock: "R1",
             pv: pv,
             createdBy: request.authUserId,
         };
-        if (sortieRCObject.qte <= stockDispo) {
+        if (sortieR1Object.qte <= stockDispo) {
             const result = await mouvementRepository.saveSortie(sortieR1ObjectUpdateWithPv);
-            const savedSortieRC = await mouvementRepository.findById(result.insertId);
+            const savedSortieR1 = await mouvementRepository.findById(result.insertId);
             sendResponse(
                 response,
                 200,
                 "SUCCESS",
                 "Request executed successfully",
-                savedSortieRC
+                savedSortieR1
             );
         } else {
             return sendResponse(
@@ -96,17 +96,17 @@ exports.addMouvementSortieRC = async (request, response) => {
                 null
             );
         }
-        const result = await mouvementRepository.save(entreeRCObject);
-        const savedEntreeRC = await mouvementRepository.findById(result.insertId);
+        const result = await mouvementRepository.save(entreeR1Object);
+        const savedEntreeR1 = await mouvementRepository.findById(result.insertId);
         sendResponse(
             response,
             200,
             "SUCCESS",
             "Request executed successfully",
-            savedEntreeRC
+            savedEntreeR1
         );
     } catch (e) {
-        logger.error(request.correlationId + " ==> Error caught in [addMouvementSortieRC Mouvements] ==> " + e.stack);
+        logger.error(request.correlationId + " ==> Error caught in [addMouvementSortieR1 Mouvements] ==> " + e.stack);
         sendResponse(
             response,
             500,
@@ -117,28 +117,28 @@ exports.addMouvementSortieRC = async (request, response) => {
     }
 };
 
-exports.updateMouvementEntreeRC = async (request, response) => {
+exports.updateMouvementEntreeR1 = async (request, response) => {
     try {
-        const entreeRCObject = request.body;
-        entreeRCObject.updatedBy = request.authUserId;
+        const entreeR1Object = request.body;
+        entreeR1Object.updatedBy = request.authUserId;
 
-        const result = await mouvementRepository.update(entreeRCObject);
+        const result = await mouvementRepository.update(entreeR1Object);
         if (!result.affectedRows) {
-            sendResponse(response, 404, "FAILURE", "EntreeRC not found", null);
+            sendResponse(response, 404, "FAILURE", "EntreeR1 not found", null);
         } else {
             console.log("ok");
-            const updatedEntreeRC = await mouvementRepository.findByIdRC(request.body.id);
+            const updatedEntreeR1 = await mouvementRepository.findById(request.body.id);
             console.log("ok-1");
             sendResponse(
                 response,
                 200,
                 "SUCCESS",
                 "Request executed successfully",
-                updatedEntreeRC
+                updatedEntreeR1
             );
         }
     } catch (e) {
-        logger.error(request.correlationId + " ==> Error caught in [updateMouvementEntreeRC MouvementEntreeRC] ==> " + e.stack);
+        logger.error(request.correlationId + " ==> Error caught in [updateMouvementEntreeR1 MouvementEntreeR1] ==> " + e.stack);
         sendResponse(
             response,
             500,
@@ -149,22 +149,22 @@ exports.updateMouvementEntreeRC = async (request, response) => {
     }
 };
 
-exports.findMouvementEntreeRC = async (request, response) => {
+exports.findMouvementEntreeR1 = async (request, response) => {
     try {
-        const mouvementEntreeRC = await mouvementRepository.findByIdRC(request.query.id);
+        const mouvementEntreeR1 = await mouvementRepository.findById(request.query.id);
         if (!model) {
-            sendResponse(response, 404, "SUCCESS", "MouvementEntreeRC not found", null);
+            sendResponse(response, 404, "SUCCESS", "MouvementEntreeR1 not found", null);
         } else {
             sendResponse(
                 response,
                 200,
                 "SUCCESS",
                 "Request executed successfully",
-                mouvementEntreeRC
+                mouvementEntreeR1
             );
         }
     } catch (e) {
-        logger.error(request.correlationId + " ==> Error caught in [findMouvementEntreeRC] ==> " + e.stack);
+        logger.error(request.correlationId + " ==> Error caught in [findMouvementEntreeR1] ==> " + e.stack);
         sendResponse(
             response,
             500,
@@ -175,49 +175,22 @@ exports.findMouvementEntreeRC = async (request, response) => {
     }
 };
 
-exports.findAllMouvementEntreeRC = async (request, response) => {
+exports.findAllMouvementEntree = async (request, response) => {
     try {
-        const page = request.query.page;
-        const length = request.query.length;
 
-        if (page === undefined || page === null || page === '') {
-            return sendResponse(
-                response,
-                400,
-                "FAILURE",
-                "page attribute required",
-                null
-            );
-        }
-
-        if (length === undefined || length === null || length === '') {
-            return sendResponse(
-                response,
-                400,
-                "FAILURE",
-                "length attribute required",
-                null
-            );
-        }
-
-        const limit = parseInt(length);
-        const offset = (parseInt(page) - 1) * parseInt(length);
-
-        const mouvementsEntreeRC = await mouvementRepository.findAllEntreeRC(limit, offset);
-        const allMouvementsEntreeRCCount = await mouvementRepository.countFindAllEntreeRC();
-
+        const mouvementsEntree = await mouvementRepository.findAllEntree();
+        
         return sendResponse(
             response,
             200,
             "SUCCESS",
             "Request executed successfully",
             {
-                mouvementsEntreeRCNumber: allMouvementsEntreeRCCount.entreeRCNumber,
-                mouvementsEntreeRC: mouvementsEntreeRC
+                mouvementsEntree: mouvementsEntree
             }
         );
     } catch (e) {
-        logger.error(request.correlationId + " ==> Error caught in [findAllMouvementEntreeRC entreeRCNumber] ==> " + e.stack);
+        logger.error(request.correlationId + " ==> Error caught in [findAllMouvementEntree entreeNumber] ==> " + e.stack);
         sendResponse(
             response,
             500,
@@ -254,7 +227,7 @@ exports.findCodeFacture = async (request, response) => {
     }
 };
 
-exports.findAllMouvementEntreeRCDispo = async (request, response) => {
+exports.findAllMouvementEntreeR1Dispo = async (request, response) => {
     try {
         const page = request.query.page;
         const length = request.query.length;
@@ -282,8 +255,8 @@ exports.findAllMouvementEntreeRCDispo = async (request, response) => {
         const limit = parseInt(length);
         const offset = (parseInt(page) - 1) * parseInt(length);
 
-        const mouvementsEntreeRCDispo = await mouvementRepository.findAllEntreeRCDispo(limit, offset);
-        const allMouvementsEntreeRCDispoCount = await mouvementRepository.countFindAllEntreeRCDispo();
+        const mouvementsEntreeR1Dispo = await mouvementRepository.findAllEntreeR1Dispo(limit, offset);
+        const allMouvementsEntreeR1DispoCount = await mouvementRepository.countFindAllEntreeR1Dispo();
 
         return sendResponse(
             response,
@@ -291,12 +264,12 @@ exports.findAllMouvementEntreeRCDispo = async (request, response) => {
             "SUCCESS",
             "Request executed successfully",
             {
-                mouvementsEntreeRCDispoNumber: allMouvementsEntreeRCDispoCount.entreeRCDispoNumber,
-                mouvementsEntreeRCDispo: mouvementsEntreeRCDispo
+                mouvementsEntreeR1DispoNumber: allMouvementsEntreeR1DispoCount.entreeR1DispoNumber,
+                mouvementsEntreeR1Dispo: mouvementsEntreeR1Dispo
             }
         );
     } catch (e) {
-        logger.error(request.correlationId + " ==> Error caught in [findAllMouvementEntreeRCDispo entreeRCNumberDispo] ==> " + e.stack);
+        logger.error(request.correlationId + " ==> Error caught in [findAllMouvementEntreeR1Dispo entreeR1NumberDispo] ==> " + e.stack);
         sendResponse(
             response,
             500,
@@ -307,32 +280,24 @@ exports.findAllMouvementEntreeRCDispo = async (request, response) => {
     }
 };
 
-exports.deleteMouvementEntreeRC = async (request, response) => {
+exports.findAllStatCaisseMois = async (request, response) => {
     try {
-        const id = request.query.id;
-        if (!id) {
-            sendResponse(
-                response,
-                400,
-                "FAILURE",
-                "The id query param is required",
-                null
-            );
-        }
-        const result = await mouvementRepository.delete(request.authUserId, id);
-        if (!result.affectedRows) {
-            sendResponse(response, 404, "FAILURE", "MouvementEntreeRC not found", null);
-        } else {
-            sendResponse(
-                response,
-                200,
-                "SUCCESS",
-                "Request executed successfully",
-                null
-            );
-        }
+    
+        const data = await mouvementRepository.findAllStatReglementParMois();
+        const total = await mouvementRepository.findAllStatReglementParMoisTotal();
+
+        return sendResponse(
+            response,
+            200,
+            "SUCCESS",
+            "Request executed successfully",
+            {
+                Grand_Total: total.Grand_Total,
+                dataCaissMoi: data
+            }
+        );
     } catch (e) {
-        logger.error(request.correlationId + " ==> Error caught in [deleteMouvementEntreeRC] ==> " + e.stack);
+        logger.error(request.correlationId + " ==> Error caught in [findAllMouvementEntreeR1Dispo entreeR1NumberDispo] ==> " + e.stack);
         sendResponse(
             response,
             500,
@@ -343,7 +308,43 @@ exports.deleteMouvementEntreeRC = async (request, response) => {
     }
 };
 
-exports.deleteMouvementEntreeRC = async (request, response) => {
+// exports.deleteMouvementEntreeR1 = async (request, response) => {
+//     try {
+//         const id = request.query.id;
+//         if (!id) {
+//             sendResponse(
+//                 response,
+//                 400,
+//                 "FAILURE",
+//                 "The id query param is required",
+//                 null
+//             );
+//         }
+//         const result = await mouvementRepository.delete(request.authUserId, id);
+//         if (!result.affectedRows) {
+//             sendResponse(response, 404, "FAILURE", "MouvementEntreeR1 not found", null);
+//         } else {
+//             sendResponse(
+//                 response,
+//                 200,
+//                 "SUCCESS",
+//                 "Request executed successfully",
+//                 null
+//             );
+//         }
+//     } catch (e) {
+//         logger.error(request.correlationId + " ==> Error caught in [deleteMouvementEntreeR1] ==> " + e.stack);
+//         sendResponse(
+//             response,
+//             500,
+//             "ERROR",
+//             "An error occurred while processing the request",
+//             null
+//         );
+//     }
+// };
+
+exports.deleteMouvementEntreeR1 = async (request, response) => {
     try {
         const id = request.query.id;
         if (!id) {
@@ -365,18 +366,19 @@ exports.deleteMouvementEntreeRC = async (request, response) => {
         );
 
     } catch (e) {
-        logger.error(request.correlationId + " ==> Error caught in [deleteMouvementEntreeRC] ==> " + e.stack);
+        logger.error(request.correlationId + " ==> Error caught in [deleteMouvementEntreeR1] ==> " + e.stack);
         sendResponse(
             response,
             500,
             "ERROR",
-            "An error occurred while processing the request deleteMouvementEntreeRC",
+            "An error occurred while processing the request deleteMouvementEntreeR1",
             null
         );
     }
 };
 
-exports.deleteMouvementSortieRC = async (request, response) => {
+
+exports.deleteMouvementSortieR1 = async (request, response) => {
     try {
         const id = Number(request.query.id);
         if (!id) {
@@ -390,7 +392,7 @@ exports.deleteMouvementSortieRC = async (request, response) => {
         }
         const result = await mouvementRepository.deleteMouvementSortie(id);
         if (!result.affectedRows) {
-            sendResponse(response, 404, "FAILURE", "MouvementSortieRC not found", null);
+            sendResponse(response, 404, "FAILURE", "MouvementSortieR1 not found", null);
         } else {
             sendResponse(
                 response,
@@ -401,7 +403,7 @@ exports.deleteMouvementSortieRC = async (request, response) => {
             );
         }
     } catch (e) {
-        logger.error(request.correlationId + " ==> Error caught in [deleteMouvementEntreeRC] ==> " + e.stack);
+        logger.error(request.correlationId + " ==> Error caught in [deleteMouvementEntreeR1] ==> " + e.stack);
         sendResponse(
             response,
             500,
