@@ -126,7 +126,7 @@ require("./routes/clientRoute")(app);
 require("./routes/fournisseurRoute")(app);
 require("./routes/produitRoute")(app);
 require("./routes/mouvementEntreeRoute")(app);
-// require("./routes/factureRoute")(app);
+require("./routes/factureRoute")(app);
 // require("./routes/reglementRoute")(app);
 
 process.on("exit", () => {

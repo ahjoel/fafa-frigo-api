@@ -213,10 +213,8 @@ class MouvementRepository {
     return await db.dBase.query(
       `
         SELECT
-        CAST(MONTH(f.created_at) AS VARCHAR(255)) as num_mois,
-        CAST(COUNT(f.id) AS VARCHAR(255)) as nb_id_deja
-        FROM factures f 
-        WHERE MONTH(f.created_at) = MONTH(CURRENT_DATE)
+                CAST(COUNT(f.id) AS CHAR) AS nb_id_deja
+        FROM factures f
       `
     );
   }

@@ -1,44 +1,44 @@
-const db = require("../configs/db/claudexBars");
+const db = require("../configs/db/dataBase");
 
 class FactureRepository {
 
     async save(facture) {
-        return await db.claudexBarsDB.query(
+        return await db.dBase.query(
             "INSERT INTO factures(code, client_id, tax, created_by, created_at) VALUES(?, ?, ?, ?, now())",
             [facture.code, facture.client_id, facture.tax, facture.createdBy]
         );
     }
 
     async saveLigneFacture(facture) {
-        return await db.claudexBarsDB.query(
-            "INSERT INTO mouvements(facture_id, produit_id, qte, pv, stock, types, created_by, created_at) VALUES(?, ?, ?, ?, ?, ?, ?, now())",
-            [facture.facture_id, facture.productId, facture.qte, facture.pv, facture.stock, facture.types, facture.createdBy]
+        return await db.dBase.query(
+            "INSERT INTO mouvements(facture_id, produit_id, qte, pv, types, created_by, created_at) VALUES(?, ?, ?, ?, ?, ?, now())",
+            [facture.facture_id, facture.productId, facture.qte, facture.pv, facture.types, facture.createdBy]
         );
     }
 
     async findById(id) {
-        return (await db.claudexBarsDB.query(
+        return (await db.dBase.query(
             "SELECT id, code, client_id, tax, created_at AS createdAt, created_by AS createdBy, updated_at As updatedAt, updated_by AS updatedBy FROM factures WHERE id = ?",
             [id]
         ))[0];
     }
 
     async findByIdReglement(id) {
-        return (await db.claudexBarsDB.query(
+        return (await db.dBase.query(
             "SELECT id, facture_id, totalFacture, created_at AS createdAt, created_by AS createdBy, updated_at As updatedAt, updated_by AS updatedBy FROM reglements WHERE id = ?",
             [id]
         ))[0];
     }
 
     async findLigneFactureById(id) {
-        return (await db.claudexBarsDB.query(
+        return (await db.dBase.query(
             "SELECT id, code, facture_id, produit_id, created_at AS createdAt, created_by AS createdBy, updated_at As updatedAt, updated_by AS updatedBy FROM mouvements WHERE id = ?",
             [id]
         ))[0];
     }
 
     async update(facture) {
-        return await db.claudexBarsDB.query(
+        return await db.dBase.query(
             "UPDATE factures " +
             "SET" +
             "    code = CASE WHEN ? IS NOT NULL THEN ? ELSE code END," +
@@ -53,13 +53,13 @@ class FactureRepository {
     }
 
     async findAll(limit, offset) {
-        return await db.claudexBarsDB.query(
+        return await db.dBase.query(
             "SELECT id, code, client_id, created_at AS createdAt, created_by AS createdBy, updated_at As updatedAt, updated_by AS updatedBy FROM factures ORDER BY id DESC LIMIT ? OFFSET ?",[limit, offset]
         );
     }
     
     async findAllFacturesR1(limit, offset) {
-        return await db.claudexBarsDB.query(
+        return await db.dBase.query(
             `
             SELECT f2.id as id, f2.code as code, c1.name as client,f2.client_id as client_id, f2.created_at AS createdAt, f2.tax as taxe, m.stock as stock, cast(count(m.produit_id) as varchar(50)) as nbproduit, sum(m.pv * m.qte) AS totalfacture,
             CASE WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL and r.deleted_by IS NULL THEN 'payée' ELSE 'impayée' END AS statut
@@ -76,7 +76,7 @@ class FactureRepository {
     }
 
     // async findAllFacturesRC(stock, limit, offset) {
-    //     return await db.claudexBarsDB.query(
+    //     return await db.dBase.query(
     //         `
     //         // INUTILISE
     //         SELECT f2.id as id, f2.code as code, f2.client as client, f2.created_at AS createdAt, f2.tax as taxe, cast(count(m.produit_id) as varchar(50)) as nbproduit, sum(m.pv * m.qte) AS totalfacture,
@@ -94,7 +94,7 @@ class FactureRepository {
     // }
 
     async findAllDetailFacturesR1(code) {
-        return await db.claudexBarsDB.query(
+        return await db.dBase.query(
             `
             SELECT m.id, f2.code, m.facture_id as factureId, c1.name as client, f2.created_at, f2.tax, p2.name as produit, p2.id as produitId, m2.name as modele, f.name as fournisseur, m.qte, m.pv 
             FROM mouvements m
@@ -110,7 +110,7 @@ class FactureRepository {
     }
 
     // async findAllDetailFacturesRC(stock, code) {
-    //     return await db.claudexBarsDB.query(
+    //     return await db.dBase.query(
     //         `
     //         // INUTILISE
     //         SELECT m.id, f2.code, m.facture_id as factureId, f2.client, f2.created_at, f2.tax, p2.name as produit, p2.id as produitId, m2.name as modele, f.name as fournisseur, m.qte, m.pv 
@@ -127,7 +127,7 @@ class FactureRepository {
     // }
 
     async countFindAllFactureR1() {
-        return (await db.claudexBarsDB.query(`
+        return (await db.dBase.query(`
         SELECT CAST(count(sous_requete.id) AS VARCHAR(255)) AS factureTotalR1Number 
         FROM (
             SELECT f2.id as id, f2.code as code, c1.name as client, f2.created_at AS createdAt, f2.tax as taxe, count(m.produit_id) as NbProduit, sum(m.pv * m.qte) AS totalFacture,
@@ -146,7 +146,7 @@ class FactureRepository {
     }
 
     async countFindAllFactureImpayee() {
-        return (await db.claudexBarsDB.query(`
+        return (await db.dBase.query(`
         SELECT CAST(count(sous_requete.id) AS VARCHAR(255)) AS factureTotalImpayeNumber 
         FROM (
             SELECT f2.id as id,
@@ -164,7 +164,7 @@ class FactureRepository {
     }
 
     async countFindAllFactureRC() {
-        return (await db.claudexBarsDB.query(`
+        return (await db.dBase.query(`
             // INUTILISE
         SELECT CAST(count(sous_requete.id) AS VARCHAR(255)) AS factureTotalRCNumber 
         FROM (
@@ -184,25 +184,25 @@ class FactureRepository {
     }
 
     async countFindAllFacture() {
-        return (await db.claudexBarsDB.query(`SELECT CAST(count(id) AS VARCHAR(255)) AS facturesNumber
+        return (await db.dBase.query(`SELECT CAST(count(id) AS VARCHAR(255)) AS facturesNumber
                                                   FROM factures `))[0];
     }
 
     async delete(factureId) {
-        return await db.claudexBarsDB.query(
+        return await db.dBase.query(
             "DELETE FROM factures WHERE id = ?", [factureId]
         );
     }
 
     async regler(facture) {
-        return await db.claudexBarsDB.query(
+        return await db.dBase.query(
             "INSERT INTO reglements(facture_id, totalFacture, created_by, created_at) VALUES(?, ?, ?, now())",
             [facture.facture_id, facture.total, facture.createdBy]
         );
     }
 
     async statistitqueParProducteurR1(date) {
-        return await db.claudexBarsDB.query(
+        return await db.dBase.query(
             `
             SELECT f.id as id,
                 f.name AS producteur,
@@ -234,7 +234,7 @@ class FactureRepository {
     }
 
     async statistitqueListeStockGeneralVenteR1(date) {
-        return await db.claudexBarsDB.query(
+        return await db.dBase.query(
             `
             SELECT CAST(ROW_NUMBER() OVER (ORDER BY produits.name) AS VARCHAR(255)) AS id, produits.name AS produit, models.name AS model, fournisseurs.name AS fournisseur,
             sum(case 
@@ -267,7 +267,7 @@ class FactureRepository {
     }
 
     async statistitqueParProducteurRC(date) {
-        return await db.claudexBarsDB.query(
+        return await db.dBase.query(
             `
             SELECT f.id as id,
                 f.name AS producteur,
@@ -299,7 +299,7 @@ class FactureRepository {
     }
 
     async statistitqueListeStockGeneralVenteRC(date) {
-        return await db.claudexBarsDB.query(
+        return await db.dBase.query(
             `
             SELECT CAST(ROW_NUMBER() OVER (ORDER BY produits.name) AS VARCHAR(255)) AS id, produits.name AS produit, models.name AS model, fournisseurs.name AS fournisseur,
             sum(case 
@@ -332,7 +332,7 @@ class FactureRepository {
     }
 
     async statistitqueArchivageFactureR1(date) {
-        return await db.claudexBarsDB.query(
+        return await db.dBase.query(
             `
             SELECT CAST(ROW_NUMBER() OVER (ORDER BY f2.id) AS VARCHAR(255)) AS id, f2.code as code, c1.name as client, f2.created_at AS date_creation, f2.tax as taxe, m.stock, cast(count(m.produit_id) as varchar(50)) as nbproduit, sum(m.pv * m.qte) AS totalfacture,
             CASE WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL and r.deleted_by IS NULL THEN 'payée' ELSE 'impayée' END AS statut
@@ -352,7 +352,7 @@ class FactureRepository {
     }
 
     async statistitqueArchivageFactureRC(date) {
-        return await db.claudexBarsDB.query(
+        return await db.dBase.query(
             `
             SELECT CAST(ROW_NUMBER() OVER (ORDER BY f2.id) AS VARCHAR(255)) AS id, f2.code as code, c1.name as client, f2.created_at AS date_creation, f2.tax as taxe, m.stock, cast(count(m.produit_id) as varchar(50)) as nbproduit, sum(m.pv * m.qte) AS totalfacture,
             CASE WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL and r.deleted_by IS NULL THEN 'payée' ELSE 'impayée' END AS statut

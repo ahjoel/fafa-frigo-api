@@ -105,7 +105,6 @@ exports.addLigneFacture = async (request, response) => {
             productId: request.body.productId,
             facture_id: request.body.facture_id,
             pv: request.body.pv,
-            stock: request.body.stock,
             qte: request.body.quantity,
             types: "OUT",
             createdBy: request.authUserId,
