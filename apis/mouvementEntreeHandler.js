@@ -201,6 +201,43 @@ exports.findAllMouvementEntree = async (request, response) => {
     }
 };
 
+exports.findAllMouvementEntreeSearchWithQuery = async (request, response) => {
+    try {
+        const searchValue = request.query.search;
+
+        if (searchValue === undefined || searchValue === null || searchValue === '') {
+            return sendResponse(
+                response,
+                400,
+                "FAILURE",
+                "search attribute required",
+                null
+            );
+        }
+
+        const mouvementsEntree = await mouvementRepository.findAllEntreeSearch(searchValue);
+        
+        return sendResponse(
+            response,
+            200,
+            "SUCCESS",
+            "Request executed successfully",
+            {
+                mouvementsEntree: mouvementsEntree
+            }
+        );
+    } catch (e) {
+        logger.error(request.correlationId + " ==> Error caught in [findAllMouvementEntreeSearchWithQuery entreesData] ==> " + e.stack);
+        sendResponse(
+            response,
+            500,
+            "ERROR",
+            "An error occurred while processing the request",
+            null
+        );
+    }
+};
+
 exports.findCodeFacture = async (request, response) => {
     try {
         
@@ -229,42 +266,14 @@ exports.findCodeFacture = async (request, response) => {
 
 exports.findAllMouvementEntreeR1Dispo = async (request, response) => {
     try {
-        const page = request.query.page;
-        const length = request.query.length;
-
-        if (page === undefined || page === null || page === '') {
-            return sendResponse(
-                response,
-                400,
-                "FAILURE",
-                "page attribute required",
-                null
-            );
-        }
-
-        if (length === undefined || length === null || length === '') {
-            return sendResponse(
-                response,
-                400,
-                "FAILURE",
-                "length attribute required",
-                null
-            );
-        }
-
-        const limit = parseInt(length);
-        const offset = (parseInt(page) - 1) * parseInt(length);
-
-        const mouvementsEntreeR1Dispo = await mouvementRepository.findAllEntreeR1Dispo(limit, offset);
-        const allMouvementsEntreeR1DispoCount = await mouvementRepository.countFindAllEntreeR1Dispo();
-
+        const mouvementsEntreeR1Dispo = await mouvementRepository.findAllEntreeR1Dispo();
+        
         return sendResponse(
             response,
             200,
             "SUCCESS",
             "Request executed successfully",
             {
-                mouvementsEntreeR1DispoNumber: allMouvementsEntreeR1DispoCount.entreeR1DispoNumber,
                 mouvementsEntreeR1Dispo: mouvementsEntreeR1Dispo
             }
         );

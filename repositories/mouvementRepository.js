@@ -148,6 +148,35 @@ class MouvementRepository {
     );
   }
 
+  async findAllEntreeSearch(searchValue) {
+    return await db.dBase.query(
+      `SELECT m.id,
+              m.code,
+              m.produit_id      AS produitId,
+              m.fournisseur_id      AS fournisseurId,
+              m.types,
+              m.qte,
+              m.created_at      AS createdAt,
+              m.created_by      AS createdBy,
+              m.updated_at      As updatedAt,
+              m.updated_by      AS updatedBy,
+              m.deleted_at      As deletedAt,
+              m.deleted_by      AS deletedBy,
+              p.name            AS produit,
+              p.categorie       AS model,
+              f.name            AS fournisseur
+      FROM mouvements m    
+              INNER JOIN produits p on m.produit_id = p.id
+              INNER JOIN fournisseurs f on m.fournisseur_id = f.id
+      WHERE m.deleted_at IS NULL
+      AND m.types= 'ADD'
+      AND m.created_at = ? 
+      OR p.name = ?
+      OR m.code = ?
+            `,[searchValue]
+    );
+  }
+
   async findAllEntreeRC(limit, offset) {
     return await db.dBase.query(
       `SELECT m.id,
@@ -220,38 +249,33 @@ class MouvementRepository {
   //   );
   // }
 
-  async findAllEntreeR1Dispo(limit, offset) {
+  async findAllEntreeR1Dispo() {
     return await db.dBase.query(
       `
-            SELECT p.id as id, p.name as produit, m2.name as model, f.name as fournisseur,
+            SELECT p.id as id, p.name as produit, p.categorie as categorie,
               sum(case 
-                      when m.created_at  < '2024-05-19'
+                      when m.created_at  < '2024-12-01'
                       then case m.types when 'OUT' then -1 else 1 end
                       else 0 
                   end * qte) AS st_init,
               sum(case
-                      when m.created_at BETWEEN '2024-05-19' AND now()
+                      when m.created_at BETWEEN '2024-12-01' AND now()
                       AND m.types = 'ADD' then qte 
                       else 0 
               end) AS qt_e,
               sum(case 
-                      when m.created_at BETWEEN '2024-05-19' AND now()
+                      when m.created_at BETWEEN '2024-12-01' AND now()
                       AND m.types = 'OUT' then qte 
                       else 0 
                   end) AS qt_s, 
               sum(case m.types when 'OUT' then -1 else 1 end * qte) AS st_dispo, p.stock_min as stockMinimal, p.pv as pv
             FROM mouvements m
-            inner join produits p on m.produit_id = p.id 
-            INNER JOIN models m2 on p.model_id = m2.id
-            INNER JOIN fournisseurs f on p.fournisseur_id = f.id
+            INNER JOIN produits p on m.produit_id = p.id 
             AND m.deleted_at IS NULL
-            AND m.stock= 'R1'
             AND m.created_at <= now()
-            GROUP BY p.id 
+            GROUP BY p.id, p.name
             order by p.name 
-            LIMIT ? OFFSET ?
-          `,
-      [limit, offset]
+          `
     );
   }
 
