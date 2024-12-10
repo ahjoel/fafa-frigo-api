@@ -241,33 +241,7 @@ exports.findAll = async (request, response) => {
 
 exports.findAllFactureR1 = async (request, response) => {
     try {
-        const page = request.query.page;
-        const length = request.query.length;
-
-        if (page === undefined || page === null || page === '') {
-            return sendResponse(
-                response,
-                400,
-                "FAILURE",
-                "page attribute required",
-                null
-            );
-        }
-
-        if (length === undefined || length === null || length === '') {
-            return sendResponse(
-                response,
-                400,
-                "FAILURE",
-                "length attribute required",
-                null
-            );
-        }
-
-        const limit = parseInt(length);
-        const offset = (parseInt(page) - 1) * parseInt(length);
-        const facturesR1 = await factureRepository.findAllFacturesR1(limit, offset);
-        const allFacturesCount = await factureRepository.countFindAllFactureR1();
+        const facturesR1 = await factureRepository.findAllFacturesR1();
 
         return sendResponse(
             response,
@@ -275,7 +249,6 @@ exports.findAllFactureR1 = async (request, response) => {
             "SUCCESS",
             "Request executed successfully",
             {
-                factureTotalR1Number: allFacturesCount.factureTotalR1Number,
                 facturesR1: facturesR1
             }
         );

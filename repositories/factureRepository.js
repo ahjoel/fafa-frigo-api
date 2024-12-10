@@ -58,20 +58,39 @@ class FactureRepository {
         );
     }
     
-    async findAllFacturesR1(limit, offset) {
+    async findAllFacturesR1() {
         return await db.dBase.query(
             `
-            SELECT f2.id as id, f2.code as code, c1.name as client,f2.client_id as client_id, f2.created_at AS createdAt, f2.tax as taxe, m.stock as stock, cast(count(m.produit_id) as varchar(50)) as nbproduit, sum(m.pv * m.qte) AS totalfacture,
-            CASE WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL and r.deleted_by IS NULL THEN 'payée' ELSE 'impayée' END AS statut
-            FROM mouvements m
-            inner join factures f2 on m.facture_id = f2.id 
-            INNER JOIN produits p2 on m.produit_id = p2.id
-            INNER JOIN clients c1 ON f2.client_id = c1.id
-            LEFT JOIN  reglements r ON f2.id = r.facture_id
-            AND m.deleted_at IS NULL
-            GROUP BY f2.id 
-            order by f2.id desc
-            LIMIT ? OFFSET ?`,[limit, offset]
+            SELECT 
+                f2.id as id, 
+                f2.code as code, 
+                c1.name as client, 
+                f2.client_id as client_id, 
+                f2.created_at AS createdAt, 
+                f2.tax as taxe, 
+                cast(count(m.produit_id) as char(50)) as nbproduit, 
+                sum(m.pv * m.qte) AS totalfacture,
+                CASE 
+                    WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
+                    ELSE 'impayée' 
+                END AS statut
+            FROM 
+                mouvements m
+            INNER JOIN 
+                factures f2 on m.facture_id = f2.id 
+            INNER JOIN 
+                produits p2 on m.produit_id = p2.id
+            INNER JOIN 
+                clients c1 ON f2.client_id = c1.id
+            LEFT JOIN  
+                reglements r ON f2.id = r.facture_id
+                AND m.deleted_at IS NULL
+            GROUP BY 
+                f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by
+            ORDER BY 
+                f2.id DESC
+            LIMIT 500;
+            `
         );
     }
 
@@ -96,12 +115,10 @@ class FactureRepository {
     async findAllDetailFacturesR1(code) {
         return await db.dBase.query(
             `
-            SELECT m.id, f2.code, m.facture_id as factureId, c1.name as client, f2.created_at, f2.tax, p2.name as produit, p2.id as produitId, m2.name as modele, f.name as fournisseur, m.qte, m.pv 
+            SELECT m.id, f2.code, m.facture_id as factureId, c1.name as client, f2.created_at, f2.tax, p2.name as produit, p2.id as produitId, p2.categorie, m.qte, m.pv 
             FROM mouvements m
             inner join factures f2 on m.facture_id = f2.id 
             INNER JOIN produits p2 on m.produit_id = p2.id
-            INNER JOIN fournisseurs f on p2.fournisseur_id = f.id
-            INNER JOIN models m2 on p2.model_id = m2.id
             INNER JOIN clients c1 ON f2.client_id = c1.id
             AND m.deleted_at IS NULL
             where f2.code= ?
