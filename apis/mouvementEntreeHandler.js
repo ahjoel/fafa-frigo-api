@@ -60,7 +60,6 @@ exports.addMouvementSortieR1 = async (request, response) => {
             factureId: request.body.factureId,
             types: "OUT",
             qte: request.body.qte,
-            stock: "R1",
             createdBy: request.authUserId,
         };
         console.log("pdId :::", sortieR1Object.produitId);
@@ -73,7 +72,6 @@ exports.addMouvementSortieR1 = async (request, response) => {
             factureId: request.body.factureId,
             types: "OUT",
             qte: request.body.qte,
-            stock: "R1",
             pv: pv,
             createdBy: request.authUserId,
         };

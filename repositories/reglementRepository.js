@@ -1,15 +1,15 @@
-const db = require("../configs/db/claudexBars");
+const db = require("../configs/db/dataBase");
 
 class ReglementRepository {
   async delete(reglementId) {
-    return await db.claudexBarsDB.query("DELETE FROM reglements WHERE id = ?", [
+    return await db.dBase.query("DELETE FROM reglements WHERE id = ?", [
       reglementId,
     ]);
   }
 
   async findById(id) {
     return (
-      await db.claudexBarsDB.query(
+      await db.dBase.query(
         `SELECT r.id,
         r.totalFacture as totalFacture
         FROM reglements r    
@@ -21,8 +21,8 @@ class ReglementRepository {
     )[0];
   }
 
-  async findAll(limit, offset) {
-    return await db.claudexBarsDB.query(
+  async findAll() {
+    return await db.dBase.query(
       `
                 SELECT r.id, r.created_at AS createdAt, u.firstname, u.lastname, f.code as codeFacture, c.name as client, r.totalFacture as totalFacture 
                 FROM reglements r 
@@ -31,15 +31,14 @@ class ReglementRepository {
                 inner join clients c on f.client_id = c.id 
                 where r.deleted_at is null 
                 and r.deleted_by is null 
-                ORDER BY r.id DESC LIMIT ? OFFSET ?
-            `,
-      [limit, offset]
+                ORDER BY r.id DESC LIMIT 500
+            `
     );
   }
 
   async countFindAllReglement() {
     return (
-      await db.claudexBarsDB.query(`
+      await db.dBase.query(`
         SELECT CAST(count(sous_requete.id) AS VARCHAR(255)) AS reglementTotalNumber 
         FROM (
             SELECT r.id, r.created_at AS createdAt, u.firstname, u.lastname, f.code as codeFacture, c.name as client, r.totalFacture as totalFacture 
@@ -56,7 +55,7 @@ class ReglementRepository {
 
   async countFindAllReglementMonth() {
     return (
-      await db.claudexBarsDB.query(`
+      await db.dBase.query(`
         SELECT CAST(SUM(totalFacture)AS VARCHAR(255)) AS reglementMonthTotalNumber 
         FROM reglements
         WHERE YEAR(reglements.created_at) = YEAR(CURDATE())
@@ -67,7 +66,7 @@ class ReglementRepository {
 
   async countFindAllReglementDay() {
     return (
-      await db.claudexBarsDB.query(`
+      await db.dBase.query(`
         SELECT CAST(SUM(totalFacture)AS VARCHAR(255)) AS reglementDayTotalNumber 
         FROM reglements
         WHERE YEAR(reglements.created_at) = YEAR(CURDATE())

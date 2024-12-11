@@ -127,7 +127,7 @@ require("./routes/fournisseurRoute")(app);
 require("./routes/produitRoute")(app);
 require("./routes/mouvementEntreeRoute")(app);
 require("./routes/factureRoute")(app);
-// require("./routes/reglementRoute")(app);
+require("./routes/reglementRoute")(app);
 
 process.on("exit", () => {
   logger.error("Process exit");
