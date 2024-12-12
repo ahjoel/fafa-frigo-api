@@ -97,13 +97,35 @@ class FactureRepository {
     async findAllDetailFacturesR1(code) {
         return await db.dBase.query(
             `
-            SELECT m.id, f2.code as codeFacture, m.facture_id as factureId, c1.name as client, f2.created_at as dateFacture, f2.tax, p2.name as produit, p2.id as produitId, p2.categorie, m.qte, m.pv 
-            FROM mouvements m
-            inner join factures f2 on m.facture_id = f2.id 
-            INNER JOIN produits p2 on m.produit_id = p2.id
-            INNER JOIN clients c1 ON f2.client_id = c1.id
-            AND m.deleted_at IS NULL
-            where f2.code= ?
+            SELECT 
+                m.id, 
+                f2.code AS codeFacture, 
+                m.facture_id AS factureId, 
+                c1.name AS client, 
+                f2.created_at AS dateFacture, 
+                f2.tax, 
+                p2.name AS produit, 
+                p2.id AS produitId, 
+                p2.categorie, 
+                m.qte, 
+                m.pv,
+                CASE 
+                    WHEN r.facture_id IS NOT NULL THEN 'Payée'
+                    ELSE 'Impayée'
+                END AS statut
+            FROM 
+                mouvements m
+            INNER JOIN 
+                factures f2 ON m.facture_id = f2.id
+            INNER JOIN 
+                produits p2 ON m.produit_id = p2.id
+            INNER JOIN 
+                clients c1 ON f2.client_id = c1.id
+            LEFT JOIN 
+                reglements r ON f2.id = r.facture_id
+            WHERE 
+                m.deleted_at IS NULL 
+            AND f2.code = ?
             `,[code]
         );
     }
