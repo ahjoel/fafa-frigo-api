@@ -107,6 +107,7 @@ class FactureRepository {
                 p2.name AS produit, 
                 p2.id AS produitId, 
                 p2.categorie, 
+                p2.mesure,
                 m.qte, 
                 m.pv,
                 CASE 

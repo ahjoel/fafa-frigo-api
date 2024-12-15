@@ -246,7 +246,7 @@ class MouvementRepository {
   async findAllEntreeR1Dispo() {
     return await db.dBase.query(
       `
-            SELECT p.id as id, p.name as produit, p.categorie as categorie,
+            SELECT p.id as id, p.name as produit, p.categorie as categorie, p.mesure,
               sum(case 
                       when m.created_at  < '2024-12-01'
                       then case m.types when 'OUT' then -1 else 1 end

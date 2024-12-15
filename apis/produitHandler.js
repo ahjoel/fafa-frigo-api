@@ -26,6 +26,7 @@ exports.addProduit = async (request, response) => {
         const produitObject = {
             code: request.body.code,
             name: request.body.name,
+            mesure: request.body.mesure,
             categorie: request.body.categorie,
             pv: request.body.pv,
             stock_min: request.body.stock_min,

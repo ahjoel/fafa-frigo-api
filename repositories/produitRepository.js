@@ -3,10 +3,11 @@ const db = require("../configs/db/dataBase");
 class ProduitRepository {
   async save(produit) {
     return await db.dBase.query(
-      "INSERT INTO produits (code, name, categorie, pv, stock_min, created_by, created_at) VALUES ( ?, ?, ?, ?, ?, ?, now());",
+      "INSERT INTO produits (code, name, mesure, categorie, pv, stock_min, created_by, created_at) VALUES ( ?, ?, ?, ?, ?, ?, ?, now());",
       [
         produit.code,
         produit.name,
+        produit.mesure,
         produit.categorie,
         produit.pv,
         produit.stock_min,
@@ -20,6 +21,7 @@ class ProduitRepository {
       `UPDATE produits
              SET code             = CASE WHEN ? IS NOT NULL THEN ? ELSE code END,
                  name             = CASE WHEN ? IS NOT NULL THEN ? ELSE name END,
+                 mesure             = CASE WHEN ? IS NOT NULL THEN ? ELSE mesure END,
                  categorie             = CASE WHEN ? IS NOT NULL THEN ? ELSE categorie END,
                  pv         = CASE WHEN ? IS NOT NULL THEN ? ELSE pv END,
                  stock_min          = CASE WHEN ? IS NOT NULL THEN ? ELSE stock_min END,
@@ -31,6 +33,8 @@ class ProduitRepository {
         produit.code,
         produit.name,
         produit.name,
+        produit.mesure,
+        produit.mesure,
         produit.categorie,
         produit.categorie,
         produit.pv,
@@ -50,6 +54,7 @@ class ProduitRepository {
                     p.code,
                     p.name,
                     p.categorie,
+                    p.mesure,
                     p.pv,
                     p.stock_min,
                     p.created_at      AS createdAt,
@@ -67,12 +72,13 @@ class ProduitRepository {
     )[0];
   }
 
-  async findAll(limit, offset) {
+  async findAll() {
     return await db.dBase.query(
             `SELECT p.id,
                     p.code,
                     p.name,
                     p.categorie,
+                    p.mesure,
                     p.pv,
                     p.stock_min,
                     p.created_at      AS createdAt,
