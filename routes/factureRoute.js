@@ -8,6 +8,7 @@ module.exports = function (app) {
     app.get("/fafa-frigo/v1/factures", [authController.verifyToken], factureHandler.findFacture);
     app.put("/fafa-frigo/v1/factures", [authController.verifyToken], factureHandler.updateFacture);
     app.get("/fafa-frigo/v1/factures/all", [authController.verifyToken], factureHandler.findAllFactureR1);
+    app.get("/fafa-frigo/v1/factures/all/search", [authController.verifyToken], factureHandler.findAllFactureSearchCodeOrDateFact);
     app.get("/fafa-frigo/v1/factures/impayee/count", [authController.verifyToken], factureHandler.findCountAllFactureImpaye);
     app.get("/fafa-frigo/v1/factures/one", [authController.verifyToken], factureHandler.findAllFactureOneR1);
     app.get("/fafa-frigo/v1/factures/detail/all", [authController.verifyToken], factureHandler.findAllDetailFactureR1);

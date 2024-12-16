@@ -94,6 +94,112 @@ class FactureRepository {
         );
     }
 
+    async findFacturesGeneralByCodeFactOrDateFact(code, dt) {
+        return await db.dBase.query(
+            `
+            SELECT 
+                f2.id as id, 
+                f2.code as code, 
+                c1.name as client, 
+                f2.client_id as client_id, 
+                f2.created_at AS createdAt, 
+                f2.tax as taxe, 
+                cast(count(m.produit_id) as char(50)) as nbproduit, 
+                sum(m.pv * m.qte) AS totalfacture,
+                CASE 
+                    WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
+                    ELSE 'impayée' 
+                END AS statut
+            FROM 
+                mouvements m
+            INNER JOIN 
+                factures f2 on m.facture_id = f2.id 
+            INNER JOIN 
+                produits p2 on m.produit_id = p2.id
+            INNER JOIN 
+                clients c1 ON f2.client_id = c1.id
+            LEFT JOIN  
+                reglements r ON f2.id = r.facture_id
+                AND m.deleted_at IS NULL
+            WHERE
+                (f2.created_at like ?
+                and f2.code = ?)
+            GROUP BY 
+                f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by
+            `, [dt, code]
+        );
+    }
+
+    async findFacturesGeneralByCodeFact(code) {
+        return await db.dBase.query(
+            `
+            SELECT 
+                f2.id as id, 
+                f2.code as code, 
+                c1.name as client, 
+                f2.client_id as client_id, 
+                f2.created_at AS createdAt, 
+                f2.tax as taxe, 
+                cast(count(m.produit_id) as char(50)) as nbproduit, 
+                sum(m.pv * m.qte) AS totalfacture,
+                CASE 
+                    WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
+                    ELSE 'impayée' 
+                END AS statut
+            FROM 
+                mouvements m
+            INNER JOIN 
+                factures f2 on m.facture_id = f2.id 
+            INNER JOIN 
+                produits p2 on m.produit_id = p2.id
+            INNER JOIN 
+                clients c1 ON f2.client_id = c1.id
+            LEFT JOIN  
+                reglements r ON f2.id = r.facture_id
+                AND m.deleted_at IS NULL
+            WHERE
+                f2.code = ?
+            GROUP BY 
+                f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by
+            `, [code]
+        );
+    }
+
+    async findFacturesGeneralByDateFact(dt) {
+        return await db.dBase.query(
+            `
+            SELECT 
+                f2.id as id, 
+                f2.code as code, 
+                c1.name as client, 
+                f2.client_id as client_id, 
+                f2.created_at AS createdAt, 
+                f2.tax as taxe, 
+                cast(count(m.produit_id) as char(50)) as nbproduit, 
+                sum(m.pv * m.qte) AS totalfacture,
+                CASE 
+                    WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
+                    ELSE 'impayée' 
+                END AS statut
+            FROM 
+                mouvements m
+            INNER JOIN 
+                factures f2 on m.facture_id = f2.id 
+            INNER JOIN 
+                produits p2 on m.produit_id = p2.id
+            INNER JOIN 
+                clients c1 ON f2.client_id = c1.id
+            LEFT JOIN  
+                reglements r ON f2.id = r.facture_id
+                AND m.deleted_at IS NULL
+            WHERE
+                f2.created_at like ?
+            GROUP BY 
+                f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by
+            `, [dt]
+        );
+    }
+
     async findAllDetailFacturesR1(code) {
         return await db.dBase.query(
             `

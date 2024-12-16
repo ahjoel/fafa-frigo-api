@@ -447,6 +447,48 @@ exports.findAllDetailFactureR1 = async (request, response) => {
     }
 };
 
+exports.findAllFactureSearchCodeOrDateFact = async (request, response) => {
+    try {
+        let factures
+        
+        const code = request.query.codeFact;
+        
+        const dateFact = request.query.dateFact;
+        
+        const dt = `%` + dateFact + `%`;
+
+        if (code && dateFact) {
+            console.log('fact by code and date');
+            factures = await factureRepository.findFacturesGeneralByCodeFactOrDateFact(code, dt);
+        }else if (code && code != null) {
+            console.log('fact by code');
+            factures = await factureRepository.findFacturesGeneralByCodeFact(code);
+        } else {
+            console.log('fact by date');
+            factures = await factureRepository.findFacturesGeneralByDateFact(dt);
+        }
+
+        return sendResponse(
+            response,
+            200,
+            "SUCCESS",
+            "Request executed successfully",
+            {
+                factures: factures
+            }
+        );
+    } catch (e) {
+        logger.error(request.correlationId + " ==> Error caught in [findAllFactureSearchCodeOrDateFact Factures - Search] ==> " + e.stack);
+        sendResponse(
+            response,
+            500,
+            "ERROR",
+            "An error occurred while processing the request findAllFactureSearchCodeOrDateFact Factures Search",
+            null
+        );
+    }
+};
+
 exports.findAllDetailFactureRC = async (request, response) => {
     try {
         const code = request.query.code;
