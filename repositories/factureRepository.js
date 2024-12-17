@@ -130,75 +130,259 @@ class FactureRepository {
         );
     }
 
+    async findFacturesGrosByCodeFactOrDateFact(code, dt) {
+        return await db.dBase.query(
+            `
+            SELECT 
+                f2.id as id, 
+                f2.code as code, 
+                c1.name as client, 
+                f2.client_id as client_id, 
+                f2.created_at AS createdAt, 
+                f2.tax as taxe, 
+                cast(count(m.produit_id) as char(50)) as nbproduit, 
+                sum(m.pv * m.qte) AS totalfacture,
+                CASE 
+                    WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
+                    ELSE 'impayée' 
+                END AS statut
+            FROM 
+                mouvements m
+            INNER JOIN 
+                factures f2 on m.facture_id = f2.id 
+            INNER JOIN 
+                produits p2 on m.produit_id = p2.id
+            INNER JOIN 
+                clients c1 ON f2.client_id = c1.id
+            LEFT JOIN  
+                reglements r ON f2.id = r.facture_id
+                AND m.deleted_at IS NULL
+            WHERE
+                (f2.created_at like ?
+                and f2.code = ?)
+            GROUP BY 
+                f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by
+            `, [dt, code]
+        );
+    }
+
+    
     async findFacturesGeneralByCodeFact(code) {
         return await db.dBase.query(
             `
             SELECT 
-                f2.id as id, 
-                f2.code as code, 
-                c1.name as client, 
-                f2.client_id as client_id, 
-                f2.created_at AS createdAt, 
-                f2.tax as taxe, 
-                cast(count(m.produit_id) as char(50)) as nbproduit, 
-                sum(m.pv * m.qte) AS totalfacture,
-                CASE 
-                    WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
-                    ELSE 'impayée' 
-                END AS statut
+            f2.id as id, 
+            f2.code as code, 
+            c1.name as client, 
+            f2.client_id as client_id, 
+            f2.created_at AS createdAt, 
+            f2.tax as taxe, 
+            cast(count(m.produit_id) as char(50)) as nbproduit, 
+            sum(m.pv * m.qte) AS totalfacture,
+            CASE 
+            WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
+            ELSE 'impayée' 
+            END AS statut
             FROM 
-                mouvements m
+            mouvements m
             INNER JOIN 
-                factures f2 on m.facture_id = f2.id 
+            factures f2 on m.facture_id = f2.id 
             INNER JOIN 
-                produits p2 on m.produit_id = p2.id
+            produits p2 on m.produit_id = p2.id
             INNER JOIN 
-                clients c1 ON f2.client_id = c1.id
+            clients c1 ON f2.client_id = c1.id
             LEFT JOIN  
-                reglements r ON f2.id = r.facture_id
-                AND m.deleted_at IS NULL
+            reglements r ON f2.id = r.facture_id
+            AND m.deleted_at IS NULL
             WHERE
-                f2.code = ?
+            f2.code = ?
             GROUP BY 
-                f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by
+            f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by
             `, [code]
         );
     }
-
+    
     async findFacturesGeneralByDateFact(dt) {
         return await db.dBase.query(
             `
             SELECT 
-                f2.id as id, 
-                f2.code as code, 
-                c1.name as client, 
-                f2.client_id as client_id, 
-                f2.created_at AS createdAt, 
-                f2.tax as taxe, 
-                cast(count(m.produit_id) as char(50)) as nbproduit, 
-                sum(m.pv * m.qte) AS totalfacture,
-                CASE 
-                    WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
-                    ELSE 'impayée' 
-                END AS statut
+            f2.id as id, 
+            f2.code as code, 
+            c1.name as client, 
+            f2.client_id as client_id, 
+            f2.created_at AS createdAt, 
+            f2.tax as taxe, 
+            cast(count(m.produit_id) as char(50)) as nbproduit, 
+            sum(m.pv * m.qte) AS totalfacture,
+            CASE 
+            WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
+            ELSE 'impayée' 
+            END AS statut
             FROM 
-                mouvements m
+            mouvements m
             INNER JOIN 
-                factures f2 on m.facture_id = f2.id 
+            factures f2 on m.facture_id = f2.id 
             INNER JOIN 
-                produits p2 on m.produit_id = p2.id
+            produits p2 on m.produit_id = p2.id
             INNER JOIN 
-                clients c1 ON f2.client_id = c1.id
+            clients c1 ON f2.client_id = c1.id
             LEFT JOIN  
-                reglements r ON f2.id = r.facture_id
-                AND m.deleted_at IS NULL
+            reglements r ON f2.id = r.facture_id
+            AND m.deleted_at IS NULL
             WHERE
-                f2.created_at like ?
+            f2.created_at like ?
             GROUP BY 
-                f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by
+            f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by
             `, [dt]
         );
     }
+    
+    async findFacturesGrosByCodeFactAndDateFact(code, dt) {
+        return await db.dBase.query(
+            `
+            SELECT m.id AS id,
+                f.code AS code,
+                f.created_at AS createdAt,
+                p.name AS produit, 
+                p.categorie AS categorie, 
+                p.mesure,
+                m.qte,
+                p.pv AS pv,
+                c.name as client
+            FROM mouvements m
+            INNER JOIN produits p ON m.produit_id = p.id 
+            INNER JOIN factures f ON m.facture_id = f.id 
+            inner join clients c on f.client_id = c.id 
+            WHERE p.mesure = 'Crt'
+            AND m.deleted_at IS NULL
+            AND (f.created_at like ?
+                    and f.code = ?)
+            GROUP BY m.id, p.name, p.categorie, p.mesure, p.pv, f.code, f.created_at
+            `, [dt, code]
+        );
+    }
+
+    async findFacturesDetailByCodeFactAndDateFact(code, dt) {
+        return await db.dBase.query(
+            `
+            SELECT m.id AS id,
+                f.code AS code,
+                f.created_at AS createdAt,
+                p.name AS produit, 
+                p.categorie AS categorie, 
+                p.mesure,
+                m.qte,
+                p.pv AS pv,
+                c.name as client
+            FROM mouvements m
+            INNER JOIN produits p ON m.produit_id = p.id 
+            INNER JOIN factures f ON m.facture_id = f.id 
+            inner join clients c on f.client_id = c.id 
+            WHERE p.mesure = 'Kg'
+            AND m.deleted_at IS NULL
+            AND (f.created_at like ?
+                    and f.code = ?)
+            GROUP BY m.id, p.name, p.categorie, p.mesure, p.pv, f.code, f.created_at
+            `, [dt, code]
+        );
+    }
+
+    async findFacturesGrosByCodeFact(code) {
+        return await db.dBase.query(
+            `
+            SELECT m.id AS id,
+                f.code AS code,
+                f.created_at AS createdAt,
+                p.name AS produit, 
+                p.categorie AS categorie, 
+                p.mesure,
+                m.qte,
+                p.pv AS pv,
+                c.name as client
+            FROM mouvements m
+            INNER JOIN produits p ON m.produit_id = p.id 
+            INNER JOIN factures f ON m.facture_id = f.id 
+            inner join clients c on f.client_id = c.id 
+            WHERE p.mesure = 'Crt'
+            AND m.deleted_at IS NULL
+            AND f.code = ?
+            GROUP BY m.id, p.name, p.categorie, p.mesure, p.pv, f.code, f.created_at
+            `, [code]
+        );
+    }
+
+    async findFacturesDetailByCodeFact(code) {
+        return await db.dBase.query(
+            `
+            SELECT m.id AS id,
+                f.code AS code,
+                f.created_at AS createdAt,
+                p.name AS produit, 
+                p.categorie AS categorie, 
+                p.mesure,
+                m.qte,
+                p.pv AS pv,
+                c.name as client
+            FROM mouvements m
+            INNER JOIN produits p ON m.produit_id = p.id 
+            INNER JOIN factures f ON m.facture_id = f.id 
+            inner join clients c on f.client_id = c.id 
+            WHERE p.mesure = 'Kg'
+            AND m.deleted_at IS NULL
+            AND f.code = ?
+            GROUP BY m.id, p.name, p.categorie, p.mesure, p.pv, f.code, f.created_at
+            `, [code]
+        );
+    }
+
+    async findFacturesGrosByDateFact(dt) {
+        return await db.dBase.query(
+            `
+            SELECT m.id AS id,
+                f.code AS code,
+                f.created_at AS createdAt,
+                p.name AS produit, 
+                p.categorie AS categorie, 
+                p.mesure,
+                m.qte,
+                p.pv AS pv,
+                c.name as client
+            FROM mouvements m
+            INNER JOIN produits p ON m.produit_id = p.id 
+            INNER JOIN factures f ON m.facture_id = f.id 
+            inner join clients c on f.client_id = c.id 
+            WHERE p.mesure = 'Crt'
+            AND m.deleted_at IS NULL
+            AND f.created_at like ?
+            GROUP BY m.id, p.name, p.categorie, p.mesure, p.pv, f.code, f.created_at
+            `, [dt]
+        );
+    }
+
+    async findFacturesDetailsByDateFact(dt) {
+        return await db.dBase.query(
+            `
+            SELECT m.id AS id,
+                f.code AS code,
+                f.created_at AS createdAt,
+                p.name AS produit, 
+                p.categorie AS categorie, 
+                p.mesure,
+                m.qte,
+                p.pv AS pv,
+                c.name as client
+            FROM mouvements m
+            INNER JOIN produits p ON m.produit_id = p.id 
+            INNER JOIN factures f ON m.facture_id = f.id 
+            inner join clients c on f.client_id = c.id 
+            WHERE p.mesure = 'Kg'
+            AND m.deleted_at IS NULL
+            AND f.created_at like ?
+            GROUP BY m.id, p.name, p.categorie, p.mesure, p.pv, f.code, f.created_at
+            `, [dt]
+        );
+    }
+
 
     async findAllDetailFacturesR1(code) {
         return await db.dBase.query(

@@ -215,33 +215,6 @@ class MouvementRepository {
     );
   }
 
-  // async findAllEntreeRC(limit, offset) {
-  //   return await db.dBase.query(
-  //           `SELECT m.id,
-  //                   m.code,
-  //                   m.produit_id      AS produitId,
-  //                   m.types,
-  //                   m.qte,
-  //                   m.stock,
-  //                   m.created_at      AS createdAt,
-  //                   m.created_by      AS createdBy,
-  //                   m.updated_at      As updatedAt,
-  //                   m.updated_by      AS updatedBy,
-  //                   m.deleted_at      As deletedAt,
-  //                   m.deleted_by      AS deletedBy,
-  //                   p.name            AS produit,
-  //                   mo.name           AS model
-  //           FROM mouvements m
-  //                   INNER JOIN produits p on m.produit_id = p.id
-  //                   INNER JOIN models mo on p.model_id = mo.id
-  //           WHERE m.deleted_at IS NULL
-  //           AND m.stock= 'RC'
-  //           AND m.types= 'ADD'
-  //           GROUP BY m.id LIMIT ?
-  //           OFFSET ?`,
-  //     [limit, offset]
-  //   );
-  // }
 
   async findAllEntreeR1Dispo() {
     return await db.dBase.query(
@@ -269,6 +242,57 @@ class MouvementRepository {
             AND m.created_at <= now()
             GROUP BY p.id, p.name
             order by p.name 
+          `
+    );
+  }
+
+  async findAllMouvementFactureDetail() {
+    return await db.dBase.query(
+      `
+            SELECT m.id AS id,
+                   f.code AS code,
+                  f.created_at AS createdAt,
+                  p.name AS produit, 
+                  p.categorie AS categorie, 
+                  p.mesure,
+                  p.pv AS pv,
+                  c.name as client
+          FROM mouvements m
+          INNER JOIN produits p ON m.produit_id = p.id 
+          INNER JOIN factures f ON m.facture_id = f.id 
+          inner join clients c on f.client_id = c.id 
+          WHERE p.mesure = 'Kg'
+            AND m.deleted_at IS NULL
+            AND m.created_at <= NOW()
+          GROUP BY m.id, p.name, p.categorie, p.mesure, p.pv, f.code, f.created_at
+          ORDER BY f.code desc
+          limit 500
+          `
+    );
+  }
+
+  async findAllMouvementFactureGros() {
+    return await db.dBase.query(
+      `
+          SELECT m.id AS id,
+            f.code AS code,
+            f.created_at AS createdAt,
+            p.name AS produit, 
+            p.categorie AS categorie, 
+            p.mesure,
+            m.qte,
+            p.pv AS pv,
+            c.name as client
+        FROM mouvements m
+        INNER JOIN produits p ON m.produit_id = p.id 
+        INNER JOIN factures f ON m.facture_id = f.id 
+        inner join clients c on f.client_id = c.id 
+        WHERE p.mesure = 'Crt'
+          AND m.deleted_at IS NULL
+          AND m.created_at <= NOW()
+        GROUP BY m.id, p.name, p.categorie, p.mesure, p.pv, f.code, f.created_at
+        ORDER BY f.code desc
+        limit 500
           `
     );
   }

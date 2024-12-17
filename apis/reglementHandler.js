@@ -106,7 +106,6 @@ exports.findReglement = async (request, response) => {
 
 exports.findAll = async (request, response) => {
     try {
-        
         const reglements = await reglementRepository.findAll();
         
         return sendResponse(
@@ -125,6 +124,51 @@ exports.findAll = async (request, response) => {
             500,
             "ERROR",
             "An error occurred while processing the request findAll Reglements",
+            null
+        );
+    }
+};
+
+exports.findAllReglementSearchCodeOrDateReg = async (request, response) => {
+    try {
+        let reglements
+        
+        const code = request.query.codeFact + '';
+        
+        const dateReg = request.query.dateReg;
+        
+        const dt = `%` + dateReg + `%`;
+
+        if (code && dateReg) {
+            console.log('reg by code fact and date', code + ' et ' + dt);
+            reglements = await reglementRepository.findReglementByCodeFactAndDateFact(dt, code);
+            console.log('reg', reglements);
+        }else if (code && code != null) {
+            console.log('reg by code fact', code);
+            reglements = await reglementRepository.findReglementByCodeFact(code);
+            console.log('reg', reglements);
+        } else {
+            console.log('reg by date', dateReg);
+            reglements = await reglementRepository.findReglementByDateFact(dt);
+            console.log('reg', reglements);
+        }
+
+        return sendResponse(
+            response,
+            200,
+            "SUCCESS",
+            "Request executed successfully",
+            {
+                reglements: reglements
+            }
+        );
+    } catch (e) {
+        logger.error(request.correlationId + " ==> Error caught in [findAllReglementSearchCodeOrDateReg reglements - Search] ==> " + e.stack);
+        sendResponse(
+            response,
+            500,
+            "ERROR",
+            "An error occurred while processing the request findAllReglementSearchCodeOrDateReg reglements Search",
             null
         );
     }

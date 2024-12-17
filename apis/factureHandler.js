@@ -489,6 +489,90 @@ exports.findAllFactureSearchCodeOrDateFact = async (request, response) => {
     }
 };
 
+exports.findAllFactureGrosSearchCodeOrDateFact = async (request, response) => {
+    try {
+        let factures
+        
+        const code = request.query.codeFact;
+        
+        const dateFact = request.query.dateFact;
+        
+        const dt = `%` + dateFact + `%`;
+
+        if (code && dateFact) {
+            console.log('fact by code and date');
+            factures = await factureRepository.findFacturesGrosByCodeFactAndDateFact(code, dt);
+        }else if (code && code != null) {
+            console.log('fact by code');
+            factures = await factureRepository.findFacturesGrosByCodeFact(code);
+        } else {
+            console.log('fact by date');
+            factures = await factureRepository.findFacturesGrosByDateFact(dt);
+        }
+
+        return sendResponse(
+            response,
+            200,
+            "SUCCESS",
+            "Request executed successfully",
+            {
+                factures: factures
+            }
+        );
+    } catch (e) {
+        logger.error(request.correlationId + " ==> Error caught in [findAllFactureSearchCodeOrDateFact Factures - Search] ==> " + e.stack);
+        sendResponse(
+            response,
+            500,
+            "ERROR",
+            "An error occurred while processing the request findAllFactureSearchCodeOrDateFact Factures Search",
+            null
+        );
+    }
+};
+
+exports.findAllFactureDetailSearchCodeOrDateFact = async (request, response) => {
+    try {
+        let factures
+        
+        const code = request.query.codeFact;
+        
+        const dateFact = request.query.dateFact;
+        
+        const dt = `%` + dateFact + `%`;
+
+        if (code && dateFact) {
+            console.log('fact by code and date');
+            factures = await factureRepository.findFacturesDetailByCodeFactAndDateFact(code, dt);
+        }else if (code && code != null) {
+            console.log('fact by code');
+            factures = await factureRepository.findFacturesDetailByCodeFact(code);
+        } else {
+            console.log('fact by date');
+            factures = await factureRepository.findFacturesDetailsByDateFact(dt);
+        }
+
+        return sendResponse(
+            response,
+            200,
+            "SUCCESS",
+            "Request executed successfully",
+            {
+                factures: factures
+            }
+        );
+    } catch (e) {
+        logger.error(request.correlationId + " ==> Error caught in [findAllFactureSearchCodeOrDateFact Factures - Search] ==> " + e.stack);
+        sendResponse(
+            response,
+            500,
+            "ERROR",
+            "An error occurred while processing the request findAllFactureSearchCodeOrDateFact Factures Search",
+            null
+        );
+    }
+};
+
 exports.findAllDetailFactureRC = async (request, response) => {
     try {
         const code = request.query.code;

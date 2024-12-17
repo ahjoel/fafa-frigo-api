@@ -287,6 +287,56 @@ exports.findAllMouvementEntreeR1Dispo = async (request, response) => {
     }
 };
 
+exports.findAllMouvementFactureDetail = async (request, response) => {
+    try {
+        const factures = await mouvementRepository.findAllMouvementFactureDetail();
+        
+        return sendResponse(
+            response,
+            200,
+            "SUCCESS",
+            "Request executed successfully",
+            {
+                factures: factures
+            }
+        );
+    } catch (e) {
+        logger.error(request.correlationId + " ==> Error caught in [findAllMouvementFactureDetail facture Disponible Detail] ==> " + e.stack);
+        sendResponse(
+            response,
+            500,
+            "ERROR",
+            "An error occurred while processing the request",
+            null
+        );
+    }
+};
+
+exports.findAllMouvementFactureGros = async (request, response) => {
+    try {
+        const factures = await mouvementRepository.findAllMouvementFactureGros();
+        
+        return sendResponse(
+            response,
+            200,
+            "SUCCESS",
+            "Request executed successfully",
+            {
+                factures: factures
+            }
+        );
+    } catch (e) {
+        logger.error(request.correlationId + " ==> Error caught in [findAllMouvementFactureGros facture Disponible Gros] ==> " + e.stack);
+        sendResponse(
+            response,
+            500,
+            "ERROR",
+            "An error occurred while processing the request",
+            null
+        );
+    }
+};
+
 exports.findAllStatCaisseMois = async (request, response) => {
     try {
     
