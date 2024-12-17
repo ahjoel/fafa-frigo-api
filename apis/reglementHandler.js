@@ -142,15 +142,12 @@ exports.findAllReglementSearchCodeOrDateReg = async (request, response) => {
         if (code && dateReg) {
             console.log('reg by code fact and date', code + ' et ' + dt);
             reglements = await reglementRepository.findReglementByCodeFactAndDateFact(dt, code);
-            console.log('reg', reglements);
         }else if (code && code != null) {
             console.log('reg by code fact', code);
             reglements = await reglementRepository.findReglementByCodeFact(code);
-            console.log('reg', reglements);
         } else {
             console.log('reg by date', dateReg);
             reglements = await reglementRepository.findReglementByDateFact(dt);
-            console.log('reg', reglements);
         }
 
         return sendResponse(
