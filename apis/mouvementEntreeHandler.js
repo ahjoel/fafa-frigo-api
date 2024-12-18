@@ -199,6 +199,40 @@ exports.findAllMouvementEntree = async (request, response) => {
     }
 };
 
+exports.findAllEntreeSearchDateEnt = async (request, response) => {
+    try {
+        let entrees
+        
+        const dateEnt = request.query.dateEnt;
+        
+        const dt = `%` + dateEnt + `%`;
+
+        if (dt) {
+            console.log('entree by date', dt);
+            entrees = await mouvementRepository.findAllEntreeSearchByDateEntree(dt);
+        }
+
+        return sendResponse(
+            response,
+            200,
+            "SUCCESS",
+            "Request executed successfully",
+            {
+                mouvementsEntree: entrees
+            }
+        );
+    } catch (e) {
+        logger.error(request.correlationId + " ==> Error caught in [findAllEntreeSearchDateEnt entrees - Search] ==> " + e.stack);
+        sendResponse(
+            response,
+            500,
+            "ERROR",
+            "An error occurred while processing the request findAllEntreeSearchDateEnt entrees Search",
+            null
+        );
+    }
+};
+
 exports.findAllMouvementEntreeSearchWithQuery = async (request, response) => {
     try {
         const searchValue = request.query.search;

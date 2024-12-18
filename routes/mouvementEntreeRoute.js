@@ -7,6 +7,7 @@ module.exports = function (app) {
     app.get("/fafa-frigo/v1/entree", [authController.verifyToken], mouvemententreeHandler.findMouvementEntreeR1);
     app.put("/fafa-frigo/v1/entree", [authController.verifyToken], mouvemententreeHandler.updateMouvementEntreeR1);
     app.get("/fafa-frigo/v1/entree/all", [authController.verifyToken], mouvemententreeHandler.findAllMouvementEntree);
+    app.get("/fafa-frigo/v1/entree/search", [authController.verifyToken], mouvemententreeHandler.findAllEntreeSearchDateEnt);
     app.post("/fafa-frigo/v1/entree/all", [authController.verifyToken], mouvemententreeHandler.findAllMouvementEntreeSearchWithQuery);
     app.get("/fafa-frigo/v1/codefacture", [authController.verifyToken], mouvemententreeHandler.findCodeFacture);
     app.get("/fafa-frigo/v1/entree/all/dispo", [authController.verifyToken], mouvemententreeHandler.findAllMouvementEntreeR1Dispo);

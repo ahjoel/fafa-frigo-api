@@ -130,6 +130,7 @@ class MouvementRepository {
               m.deleted_at      As deletedAt,
               m.deleted_by      AS deletedBy,
               p.name            AS produit,
+              p.mesure            AS mesure,
               p.categorie       AS model,
               f.name            AS fournisseur
       FROM mouvements m    
@@ -141,6 +142,34 @@ class MouvementRepository {
       ORDER BY m.id DESC
       LIMIT 500
             `
+    );
+  }
+
+  async findAllEntreeSearchByDateEntree(dt) {
+    return await db.dBase.query(
+      `SELECT m.id,
+              m.code,
+              m.produit_id      AS produitId,
+              m.fournisseur_id      AS fournisseurId,
+              m.types,
+              m.qte,
+              m.created_at      AS createdAt,
+              m.created_by      AS createdBy,
+              m.updated_at      As updatedAt,
+              m.updated_by      AS updatedBy,
+              m.deleted_at      As deletedAt,
+              m.deleted_by      AS deletedBy,
+              p.name            AS produit,
+              p.mesure            AS mesure,
+              p.categorie       AS model,
+              f.name            AS fournisseur
+      FROM mouvements m    
+              INNER JOIN produits p on m.produit_id = p.id
+              INNER JOIN fournisseurs f on m.fournisseur_id = f.id
+      WHERE m.deleted_at IS NULL
+      AND m.types= 'ADD'
+      AND m.created_at like ?
+            `, [dt]
     );
   }
 
