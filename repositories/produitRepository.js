@@ -94,12 +94,64 @@ class ProduitRepository {
     );
   }
 
-  async countFindAllProduit() {
+  async countFindAllProduitKg() {
     return (
       await db.dBase
-        .query(`SELECT CAST(count(id) AS VARCHAR(255)) AS produitNumber
+        .query(`SELECT CAST(count(id) AS CHAR(255)) AS produitNumberKg
                                                   FROM produits
-                                                  WHERE deleted_by is null AND stock='R1' `)
+                                                  WHERE deleted_by is null AND mesure = 'Kg' `)
+    )[0];
+  }
+
+  async countFindAllProduitCrt() {
+    return (
+      await db.dBase
+        .query(`SELECT CAST(count(id) AS CHAR(255)) AS produitNumberCrt
+                                                  FROM produits
+                                                  WHERE deleted_by is null AND mesure = 'Crt' `)
+    )[0];
+  }
+
+  async countFindAllFactureOfDay() {
+    return (
+      await db.dBase
+        .query(`
+          SELECT 
+              CAST(COUNT(distinct f2.id) AS CHAR(255))  AS nb_factures_du_jour
+          FROM 
+              factures f2
+          INNER JOIN 
+              mouvements m ON m.facture_id = f2.id
+          INNER JOIN 
+              clients c1 ON f2.client_id = c1.id
+          LEFT JOIN  
+              reglements r ON f2.id = r.facture_id AND m.deleted_at IS NULL
+          WHERE 
+              DATE(f2.created_at) = CURDATE() 
+          AND m.deleted_at IS NULL
+        `)
+    )[0];
+  }
+
+  async countFindAllReglementOfDay() {
+    return (
+      await db.dBase
+        .query(`
+            SELECT 
+                CAST(COUNT(r.id) AS CHAR(255)) AS reglements_du_jour
+            FROM 
+                reglements r
+            INNER JOIN 
+                factures f ON r.facture_id = f.id
+            INNER JOIN 
+                users u ON r.created_by = u.id
+            INNER JOIN 
+                clients c ON f.client_id = c.id
+            WHERE 
+                r.deleted_at IS NULL
+                AND r.deleted_by IS NULL
+                AND DATE(r.created_at) = CURDATE()
+        `)
     )[0];
   }
 

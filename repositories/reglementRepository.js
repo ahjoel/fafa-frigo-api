@@ -36,6 +36,21 @@ class ReglementRepository {
     );
   }
 
+  async findAllDash() {
+    return await db.dBase.query(
+      `
+                SELECT r.id, r.created_at AS createdAt, u.firstname, u.lastname, f.code as codeFacture, c.name as client, r.totalFacture as totalFacture 
+                FROM reglements r 
+                inner join factures f ON r.facture_id = f.id 
+                inner join users u on r.created_by = u.id 
+                inner join clients c on f.client_id = c.id 
+                where r.deleted_at is null 
+                and r.deleted_by is null 
+                ORDER BY r.id DESC LIMIT 10
+            `
+    );
+  }
+
   async findReglementByCodeFactAndDateFact(dt, code) {
     return await db.dBase.query(
       `

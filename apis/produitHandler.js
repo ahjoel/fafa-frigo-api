@@ -141,7 +141,10 @@ exports.findAll = async (request, response) => {
 
 exports.findCountProducts = async (request, response) => {
     try {
-        const allProduitsCount = await produitRepository.countFindAllProduit();
+        const allProduitsCountKg = await produitRepository.countFindAllProduitKg();
+        const allProduitsCountCrt = await produitRepository.countFindAllProduitCrt();
+        const allFacturesOfDayCount = await produitRepository.countFindAllFactureOfDay();
+        const allReglementOfDayCount = await produitRepository.countFindAllReglementOfDay();
 
         return sendResponse(
             response,
@@ -149,7 +152,10 @@ exports.findCountProducts = async (request, response) => {
             "SUCCESS",
             "Request executed successfully",
             {
-                produitNumber: allProduitsCount.produitNumber,
+                produitNumberKg: allProduitsCountKg.produitNumberKg,
+                produitNumberCrt: allProduitsCountCrt.produitNumberCrt,
+                factureNumbers: allFacturesOfDayCount.nb_factures_du_jour,
+                reglementNumbers: allReglementOfDayCount.reglements_du_jour,
             }
         );
     } catch (e) {

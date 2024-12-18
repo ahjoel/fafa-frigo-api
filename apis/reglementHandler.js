@@ -129,6 +129,31 @@ exports.findAll = async (request, response) => {
     }
 };
 
+exports.findAllDAshboard = async (request, response) => {
+    try {
+        const reglements = await reglementRepository.findAllDash();
+        
+        return sendResponse(
+            response,
+            200,
+            "SUCCESS",
+            "Request executed successfully",
+            {
+                reglements: reglements
+            }
+        );
+    } catch (e) {
+        logger.error(request.correlationId + " ==> Error caught in [findAll Reglements] ==> " + e.stack);
+        sendResponse(
+            response,
+            500,
+            "ERROR",
+            "An error occurred while processing the request findAll Reglements",
+            null
+        );
+    }
+};
+
 exports.findAllReglementSearchCodeOrDateReg = async (request, response) => {
     try {
         let reglements
