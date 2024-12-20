@@ -70,6 +70,7 @@ class FactureRepository {
                 f2.tax as taxe, 
                 cast(count(m.produit_id) as char(50)) as nbproduit, 
                 sum(m.pv * m.qte) AS totalfacture,
+                sum(p2.pa * m.qte) AS margeBene,
                 CASE 
                     WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
                     ELSE 'impayée' 

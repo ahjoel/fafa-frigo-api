@@ -28,6 +28,7 @@ exports.addProduit = async (request, response) => {
             name: request.body.name,
             mesure: request.body.mesure,
             categorie: request.body.categorie,
+            pa: request.body.pa,
             pv: request.body.pv,
             stock_min: request.body.stock_min,
             createdBy: request.authUserId,

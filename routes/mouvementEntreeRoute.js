@@ -15,7 +15,9 @@ module.exports = function (app) {
     app.get("/fafa-frigo/v1/entree/all/facture/gros", [authController.verifyToken], mouvemententreeHandler.findAllMouvementFactureGros);
     app.delete("/fafa-frigo/v1/entree", [authController.verifyToken], mouvemententreeHandler.deleteMouvementEntreeR1);
     app.delete("/fafa-frigo/v1/sortie", [authController.verifyToken], mouvemententreeHandler.deleteMouvementSortieR1);
-     
+    
+    app.get("/fafa-frigo/v1/entree/stat/stock", [authController.verifyToken], mouvemententreeHandler.findAllMouvementStockStat);
+
     // A faire
     app.get("/fafa-frigo/v1/caisse/mois", [authController.verifyToken], mouvemententreeHandler.findAllStatCaisseMois);
 }

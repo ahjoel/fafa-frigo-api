@@ -37,7 +37,7 @@ class MouvementRepository {
                  produit_id             = CASE WHEN ? IS NOT NULL THEN ? ELSE produit_id END,
                  fournisseur_id         = CASE WHEN ? IS NOT NULL THEN ? ELSE fournisseur_id END,
                  types             = CASE WHEN ? IS NOT NULL THEN ? ELSE types END,
-                 qte             = CASE WHEN ? IS NOT NULL THEN ? ELSE qte END,
+                 qte             = CASE WHEN ? IS NOT NULL THEN ? ELSE qte END
                  updated_by        = ?,
                  updated_at        = now()
              WHERE id = ?`,
@@ -122,6 +122,7 @@ class MouvementRepository {
               m.produit_id      AS produitId,
               m.fournisseur_id      AS fournisseurId,
               m.types,
+              m.pv,
               m.qte,
               m.created_at      AS createdAt,
               m.created_by      AS createdBy,
@@ -142,6 +143,46 @@ class MouvementRepository {
       ORDER BY m.id DESC
       LIMIT 500
             `
+    );
+  }
+
+  async findAllMouvementSituation(periodes) {
+    return await db.dBase.query(
+      `SELECT 
+          p.id as id, 
+          p.name as produit, 
+          p.categorie as categorie, 
+          p.mesure,
+          sum(case 
+                  when m.created_at  < ?
+                  then case m.types when 'OUT' then -1 else 1 end
+                  else 0 
+              end * qte) AS st_init,
+          sum(case
+                  when m.created_at BETWEEN ? AND ?
+                  AND m.types = 'ADD' then qte 
+                  else 0 
+          end) AS qt_e,
+          sum(case 
+                  when m.created_at BETWEEN ? AND ?
+                  AND m.types = 'OUT' then qte 
+                  else 0 
+              end) AS qt_s, 
+          sum(case m.types when 'OUT' then -1 else 1 end * qte) AS st_dispo, 
+          sum(case m.types when 'OUT' then -1 else 1 end * m.pv) AS margeBene, 
+          p.stock_min as stockMinimal
+      FROM 
+          mouvements m
+      INNER JOIN 
+          produits p on m.produit_id = p.id 
+          AND m.deleted_at IS NULL
+          AND m.created_at <= ?
+      GROUP BY 
+          p.id, p.name, p.categorie, p.mesure, p.stock_min
+      ORDER BY 
+          p.name
+
+            `, [periodes.dateDeb, periodes.dateDeb, periodes.dateFin, periodes.dateDeb, periodes.dateFin, periodes.dateFin]
     );
   }
 

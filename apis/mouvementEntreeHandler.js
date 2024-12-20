@@ -199,6 +199,43 @@ exports.findAllMouvementEntree = async (request, response) => {
     }
 };
 
+exports.findAllMouvementStockStat = async (request, response) => {
+    try {
+        let situations
+
+        const dateDeb = request.query.dd;
+        const dateFin = request.query.df;
+
+        const periodes = {
+            dateDeb: dateDeb,
+            dateFin: dateFin
+        }
+
+        if (dateDeb && dateFin) {
+            situations = await mouvementRepository.findAllMouvementSituation(periodes);
+        }
+        
+        return sendResponse(
+            response,
+            200,
+            "SUCCESS",
+            "Request executed successfully",
+            {
+                situations: situations
+            }
+        );
+    } catch (e) {
+        logger.error(request.correlationId + " ==> Error caught in [findAllMouvementStockStat situations] ==> " + e.stack);
+        sendResponse(
+            response,
+            500,
+            "ERROR",
+            "An error occurred while processing the request",
+            null
+        );
+    }
+};
+
 exports.findAllEntreeSearchDateEnt = async (request, response) => {
     try {
         let entrees

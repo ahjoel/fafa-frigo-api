@@ -17,6 +17,10 @@
       "type": "string",
       "minLength": 1
     },
+    "pa": {
+      "type": "integer",
+      "minLength": 1
+    },
     "pv": {
       "type": "integer",
       "minLength": 2
@@ -31,6 +35,7 @@
     "name",
     "mesure",
     "categorie",
+    "pa",
     "pv",
     "stock_min"
   ],

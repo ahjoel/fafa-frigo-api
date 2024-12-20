@@ -3,12 +3,13 @@ const db = require("../configs/db/dataBase");
 class ProduitRepository {
   async save(produit) {
     return await db.dBase.query(
-      "INSERT INTO produits (code, name, mesure, categorie, pv, stock_min, created_by, created_at) VALUES ( ?, ?, ?, ?, ?, ?, ?, now());",
+      "INSERT INTO produits (code, name, mesure, categorie, pa, pv, stock_min, created_by, created_at) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, now());",
       [
         produit.code,
         produit.name,
         produit.mesure,
         produit.categorie,
+        produit.pa,
         produit.pv,
         produit.stock_min,
         produit.createdBy,
@@ -23,6 +24,7 @@ class ProduitRepository {
                  name             = CASE WHEN ? IS NOT NULL THEN ? ELSE name END,
                  mesure             = CASE WHEN ? IS NOT NULL THEN ? ELSE mesure END,
                  categorie             = CASE WHEN ? IS NOT NULL THEN ? ELSE categorie END,
+                 pa         = CASE WHEN ? IS NOT NULL THEN ? ELSE pa END,
                  pv         = CASE WHEN ? IS NOT NULL THEN ? ELSE pv END,
                  stock_min          = CASE WHEN ? IS NOT NULL THEN ? ELSE stock_min END,
                  updated_by        = ?,
@@ -37,6 +39,8 @@ class ProduitRepository {
         produit.mesure,
         produit.categorie,
         produit.categorie,
+        produit.pa,
+        produit.pa,
         produit.pv,
         produit.pv,
         produit.stock_min,
@@ -79,6 +83,7 @@ class ProduitRepository {
                     p.name,
                     p.categorie,
                     p.mesure,
+                    p.pa,
                     p.pv,
                     p.stock_min,
                     p.created_at      AS createdAt,
