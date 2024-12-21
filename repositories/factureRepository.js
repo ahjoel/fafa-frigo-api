@@ -254,7 +254,7 @@ class FactureRepository {
             INNER JOIN produits p ON m.produit_id = p.id 
             INNER JOIN factures f ON m.facture_id = f.id 
             inner join clients c on f.client_id = c.id 
-            WHERE p.mesure = 'Crt'
+            WHERE p.mesure = 'CRT'
             AND m.deleted_at IS NULL
             AND (f.created_at like ?
                     and f.code = ?)
@@ -279,7 +279,7 @@ class FactureRepository {
             INNER JOIN produits p ON m.produit_id = p.id 
             INNER JOIN factures f ON m.facture_id = f.id 
             inner join clients c on f.client_id = c.id 
-            WHERE p.mesure = 'Kg'
+            WHERE p.mesure = 'KG'
             AND m.deleted_at IS NULL
             AND (f.created_at like ?
                     and f.code = ?)
@@ -304,7 +304,7 @@ class FactureRepository {
             INNER JOIN produits p ON m.produit_id = p.id 
             INNER JOIN factures f ON m.facture_id = f.id 
             inner join clients c on f.client_id = c.id 
-            WHERE p.mesure = 'Crt'
+            WHERE p.mesure = 'CRT'
             AND m.deleted_at IS NULL
             AND f.code = ?
             GROUP BY m.id, p.name, p.categorie, p.mesure, p.pv, f.code, f.created_at
@@ -328,7 +328,7 @@ class FactureRepository {
             INNER JOIN produits p ON m.produit_id = p.id 
             INNER JOIN factures f ON m.facture_id = f.id 
             inner join clients c on f.client_id = c.id 
-            WHERE p.mesure = 'Kg'
+            WHERE p.mesure = 'KG'
             AND m.deleted_at IS NULL
             AND f.code = ?
             GROUP BY m.id, p.name, p.categorie, p.mesure, p.pv, f.code, f.created_at
@@ -352,7 +352,7 @@ class FactureRepository {
             INNER JOIN produits p ON m.produit_id = p.id 
             INNER JOIN factures f ON m.facture_id = f.id 
             inner join clients c on f.client_id = c.id 
-            WHERE p.mesure = 'Crt'
+            WHERE p.mesure = 'CRT'
             AND m.deleted_at IS NULL
             AND f.created_at like ?
             GROUP BY m.id, p.name, p.categorie, p.mesure, p.pv, f.code, f.created_at
@@ -376,7 +376,7 @@ class FactureRepository {
             INNER JOIN produits p ON m.produit_id = p.id 
             INNER JOIN factures f ON m.facture_id = f.id 
             inner join clients c on f.client_id = c.id 
-            WHERE p.mesure = 'Kg'
+            WHERE p.mesure = 'KG'
             AND m.deleted_at IS NULL
             AND f.created_at like ?
             GROUP BY m.id, p.name, p.categorie, p.mesure, p.pv, f.code, f.created_at
@@ -529,7 +529,7 @@ class FactureRepository {
         );
     }
 
-    async statistitqueListeStockGeneralVenteR1(date) {
+    async statistitqueListeStocKGeneralVenteR1(date) {
         return await db.dBase.query(
             `
             SELECT CAST(ROW_NUMBER() OVER (ORDER BY produits.name) AS VARCHAR(255)) AS id, produits.name AS produit, models.name AS model, fournisseurs.name AS fournisseur,
@@ -594,7 +594,7 @@ class FactureRepository {
         );
     }
 
-    async statistitqueListeStockGeneralVenteRC(date) {
+    async statistitqueListeStocKGeneralVenteRC(date) {
         return await db.dBase.query(
             `
             SELECT CAST(ROW_NUMBER() OVER (ORDER BY produits.name) AS VARCHAR(255)) AS id, produits.name AS produit, models.name AS model, fournisseurs.name AS fournisseur,

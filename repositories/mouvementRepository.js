@@ -278,9 +278,13 @@ class MouvementRepository {
   async factureCode() {
     return await db.dBase.query(
       `
-        SELECT
-                CAST(COUNT(f.id) AS CHAR) AS nb_id_deja
-        FROM factures f
+        SELECT 
+            CAST(COUNT(f.id) AS CHAR) AS nb_id_deja
+        FROM 
+            factures f
+        WHERE 
+            MONTH(f.created_at) = MONTH(CURDATE()) 
+            AND YEAR(f.created_at) = YEAR(CURDATE());
       `
     );
   }
@@ -331,7 +335,7 @@ class MouvementRepository {
           INNER JOIN produits p ON m.produit_id = p.id 
           INNER JOIN factures f ON m.facture_id = f.id 
           inner join clients c on f.client_id = c.id 
-          WHERE p.mesure = 'Kg'
+          WHERE p.mesure = 'KG'
             AND m.deleted_at IS NULL
             AND m.created_at <= NOW()
           GROUP BY m.id, p.name, p.categorie, p.mesure, p.pv, f.code, f.created_at
@@ -357,7 +361,7 @@ class MouvementRepository {
         INNER JOIN produits p ON m.produit_id = p.id 
         INNER JOIN factures f ON m.facture_id = f.id 
         inner join clients c on f.client_id = c.id 
-        WHERE p.mesure = 'Crt'
+        WHERE p.mesure = 'CRT'
           AND m.deleted_at IS NULL
           AND m.created_at <= NOW()
         GROUP BY m.id, p.name, p.categorie, p.mesure, p.pv, f.code, f.created_at
