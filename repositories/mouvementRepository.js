@@ -186,6 +186,123 @@ class MouvementRepository {
     );
   }
 
+  async findAllMouvementSituationEntrees(periodes) {
+    return await db.dBase.query(
+      `SELECT 
+          m.id,
+          m.code,
+          m.produit_id AS produitId,
+          m.fournisseur_id AS fournisseurId,
+          m.types,
+          m.pv,
+          m.qte,
+          m.created_at AS createdAt,
+          m.created_by AS createdBy,
+          m.updated_at AS updatedAt,
+          m.updated_by AS updatedBy,
+          m.deleted_at AS deletedAt,
+          m.deleted_by AS deletedBy,
+          p.name AS produit,
+          p.mesure AS mesure,
+          p.categorie,
+          f.name AS fournisseur,
+          CONCAT(u.firstname, ' ', u.lastname) AS name
+      FROM 
+          mouvements m    
+      INNER JOIN 
+          produits p ON m.produit_id = p.id
+      INNER JOIN 
+          fournisseurs f ON m.fournisseur_id = f.id
+      INNER JOIN 
+          users u ON m.created_by = u.id 
+      WHERE 
+          m.deleted_at IS NULL
+          AND m.types = 'ADD'
+          AND m.created_at BETWEEN ? AND ?
+      GROUP BY 
+          m.id
+      ORDER BY 
+          p.name ASC
+            `, [periodes.dateDeb, periodes.dateFin]
+    );
+  }
+
+  async findAllMouvementSituationSorties(periodes) {
+    return await db.dBase.query(
+      `SELECT 
+          m.id,
+          f.code,
+          m.produit_id AS produitId,
+          m.types,
+          m.pv,
+          m.qte,
+          f.created_at AS createdAt,
+          m.created_by AS createdBy,
+          m.updated_at AS updatedAt,
+          m.updated_by AS updatedBy,
+          m.deleted_at AS deletedAt,
+          m.deleted_by AS deletedBy,
+          p.name AS produit,
+          p.mesure AS mesure,
+          p.categorie,
+          CONCAT(u.firstname, ' ', u.lastname) AS name
+      FROM 
+          mouvements m    
+      INNER JOIN 
+          produits p ON m.produit_id = p.id
+      INNER JOIN 
+          factures f ON m.facture_id = f.id
+      INNER JOIN 
+          users u ON m.created_by = u.id 
+      WHERE 
+          m.deleted_at IS NULL
+          AND m.types = 'OUT'
+          AND m.created_at BETWEEN ? AND ?
+      GROUP BY 
+          m.id
+      ORDER BY 
+          p.name ASC
+            `, [periodes.dateDeb, periodes.dateFin]
+    );
+  }
+
+  async findAllRecettePeriode(periodes) {
+    return await db.dBase.query(
+      `SELECT 
+          f2.id as id, 
+          f2.code as code, 
+          c1.name as client, 
+          f2.client_id as client_id, 
+          f2.created_at AS createdAt, 
+          f2.tax as taxe, 
+          cast(count(m.produit_id) as char(50)) as nbproduit, 
+          sum(m.pv * m.qte) AS totalfacture,
+          sum(p2.pa * m.qte) AS margeBene,
+          CASE 
+              WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
+              ELSE 'impayée' 
+          END AS statut
+      FROM 
+          mouvements m
+      INNER JOIN 
+          factures f2 on m.facture_id = f2.id 
+      INNER JOIN 
+          produits p2 on m.produit_id = p2.id
+      INNER JOIN 
+          clients c1 ON f2.client_id = c1.id
+      LEFT JOIN  
+          reglements r ON f2.id = r.facture_id
+          AND m.deleted_at IS NULL
+      WHERE 
+          f2.created_at BETWEEN ? AND ?
+      GROUP BY 
+          f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by
+      ORDER BY 
+          f2.id ASC
+            `, [periodes.dateDeb, periodes.dateFin]
+    );
+  }
+
   async findAllEntreeSearchByDateEntree(dt) {
     return await db.dBase.query(
       `SELECT m.id,

@@ -11,8 +11,8 @@ class FactureRepository {
 
     async saveLigneFacture(facture) {
         return await db.dBase.query(
-            "INSERT INTO mouvements(facture_id, produit_id, qte, pv, types, created_by, created_at) VALUES(?, ?, ?, ?, ?, ?, now())",
-            [facture.facture_id, facture.productId, facture.qte, facture.pv, facture.types, facture.createdBy]
+            "INSERT INTO mouvements(code, facture_id, produit_id, qte, pv, types, created_by, created_at) VALUES(?, ?, ?, ?, ?, ?, ?, now())",
+            [facture.code, facture.facture_id, facture.productId, facture.qte, facture.pv, facture.types, facture.createdBy]
         );
     }
 

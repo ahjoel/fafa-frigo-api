@@ -104,7 +104,7 @@ class ProduitRepository {
       await db.dBase
         .query(`SELECT CAST(count(id) AS CHAR(255)) AS produitNumberKg
                                                   FROM produits
-                                                  WHERE deleted_by is null AND mesure = 'Kg' `)
+                                                  WHERE deleted_by is null AND mesure = 'KG' `)
     )[0];
   }
 
@@ -113,7 +113,7 @@ class ProduitRepository {
       await db.dBase
         .query(`SELECT CAST(count(id) AS CHAR(255)) AS produitNumberCrt
                                                   FROM produits
-                                                  WHERE deleted_by is null AND mesure = 'Crt' `)
+                                                  WHERE deleted_by is null AND mesure = 'CRT' `)
     )[0];
   }
 

@@ -102,6 +102,7 @@ exports.addLigneFacture = async (request, response) => {
             );
         }
         const factureLigneObject = {
+            code: 'OUT_PROD_FACT',
             productId: request.body.productId,
             facture_id: request.body.facture_id,
             pv: request.body.pv,

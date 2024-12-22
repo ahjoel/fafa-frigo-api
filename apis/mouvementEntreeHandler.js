@@ -236,6 +236,117 @@ exports.findAllMouvementStockStat = async (request, response) => {
     }
 };
 
+exports.findAllMouvementStockEntreeStat = async (request, response) => {
+    try {
+        let situations
+
+        const dateDeb = request.query.dd + 'T00:00:00';
+        const dateFin = request.query.df + 'T23:59:59';
+
+        const periodes = {
+            dateDeb: dateDeb,
+            dateFin: dateFin
+        }
+
+        if (dateDeb && dateFin) {
+            situations = await mouvementRepository.findAllMouvementSituationEntrees(periodes);
+        }
+        
+        return sendResponse(
+            response,
+            200,
+            "SUCCESS",
+            "Request executed successfully",
+            {
+                situations: situations
+            }
+        );
+    } catch (e) {
+        logger.error(request.correlationId + " ==> Error caught in [findAllMouvementStockStat situations] ==> " + e.stack);
+        sendResponse(
+            response,
+            500,
+            "ERROR",
+            "An error occurred while processing the request",
+            null
+        );
+    }
+};
+
+exports.findAllMouvementStockSortieStat = async (request, response) => {
+    try {
+        let situations
+
+        const dateDeb = request.query.dd + 'T00:00:00';
+        const dateFin = request.query.df + 'T23:59:59';
+
+        const periodes = {
+            dateDeb: dateDeb,
+            dateFin: dateFin
+        }
+
+        if (dateDeb && dateFin) {
+            situations = await mouvementRepository.findAllMouvementSituationSorties(periodes);
+        }
+        
+        return sendResponse(
+            response,
+            200,
+            "SUCCESS",
+            "Request executed successfully",
+            {
+                situations: situations
+            }
+        );
+    } catch (e) {
+        logger.error(request.correlationId + " ==> Error caught in [findAllMouvementStockStat situations] ==> " + e.stack);
+        sendResponse(
+            response,
+            500,
+            "ERROR",
+            "An error occurred while processing the request",
+            null
+        );
+    }
+};
+
+exports.findAllRecettePeriode = async (request, response) => {
+    try {
+        let situations
+
+        const dateDeb = request.query.dd + 'T00:00:00';
+        const dateFin = request.query.df + 'T23:59:59';
+
+        const periodes = {
+            dateDeb: dateDeb,
+            dateFin: dateFin
+        }
+
+        if (dateDeb && dateFin) {
+            situations = await mouvementRepository.findAllRecettePeriode(periodes);
+        }
+        
+        return sendResponse(
+            response,
+            200,
+            "SUCCESS",
+            "Request executed successfully",
+            {
+                situations: situations
+            }
+        );
+    } catch (e) {
+        logger.error(request.correlationId + " ==> Error caught in [findAllMouvementStockStat situations] ==> " + e.stack);
+        sendResponse(
+            response,
+            500,
+            "ERROR",
+            "An error occurred while processing the request",
+            null
+        );
+    }
+};
+
 exports.findAllMouvementStockStatDuJour = async (request, response) => {
     try {
         let situations
