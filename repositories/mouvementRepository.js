@@ -37,7 +37,7 @@ class MouvementRepository {
                  produit_id             = CASE WHEN ? IS NOT NULL THEN ? ELSE produit_id END,
                  fournisseur_id         = CASE WHEN ? IS NOT NULL THEN ? ELSE fournisseur_id END,
                  types             = CASE WHEN ? IS NOT NULL THEN ? ELSE types END,
-                 qte             = CASE WHEN ? IS NOT NULL THEN ? ELSE qte END
+                 qte             = CASE WHEN ? IS NOT NULL THEN ? ELSE qte END,
                  updated_by        = ?,
                  updated_at        = now()
              WHERE id = ?`,
