@@ -62,8 +62,13 @@ exports.addReglementFacture = async (request, response) => {
                 null
             );
         }
+
+        const reliquat = Number(request.body.montantRecu) - Number(request.body.total)
+
         const factureObject = {
             facture_id: request.body.facture_id,
+            mtrecu: Number(request.body.montantRecu),
+            relicat: reliquat,
             total: request.body.total,
             createdBy: request.authUserId,
         };

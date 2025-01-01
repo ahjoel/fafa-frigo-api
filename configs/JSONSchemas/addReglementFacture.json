@@ -5,6 +5,10 @@
       "type": "integer",
       "minLength": 1
     },
+    "montantRecu": {
+      "type": "integer",
+      "minLength": 1
+    },
     "total": {
       "type": "integer",
       "minLength": 1
@@ -12,6 +16,7 @@
   },
   "required": [
     "facture_id",
+    "montantRecu",
     "total"
   ],
   "additionalProperties": false

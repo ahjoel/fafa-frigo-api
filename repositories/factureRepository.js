@@ -25,7 +25,7 @@ class FactureRepository {
 
     async findByIdReglement(id) {
         return (await db.dBase.query(
-            "SELECT id, facture_id, totalFacture, created_at AS createdAt, created_by AS createdBy, updated_at As updatedAt, updated_by AS updatedBy FROM reglements WHERE id = ?",
+            "SELECT id, facture_id, totalFacture, mtrecu, relicat, created_at AS createdAt, created_by AS createdBy, updated_at As updatedAt, updated_by AS updatedBy FROM reglements WHERE id = ?",
             [id]
         ))[0];
     }
@@ -71,6 +71,8 @@ class FactureRepository {
                 cast(count(m.produit_id) as char(50)) as nbproduit, 
                 sum(m.pv * m.qte) AS totalfacture,
                 sum(p2.pa * m.qte) AS margeBene,
+                r.mtrecu,
+                r.relicat,
                 CASE 
                     WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
                     ELSE 'impayée' 
@@ -87,7 +89,7 @@ class FactureRepository {
                 reglements r ON f2.id = r.facture_id
                 AND m.deleted_at IS NULL
             GROUP BY 
-                f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by
+                f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by, r.mtrecu, r.relicat
             ORDER BY 
                 f2.id DESC
             LIMIT 500
@@ -107,6 +109,8 @@ class FactureRepository {
                 f2.tax as taxe, 
                 cast(count(m.produit_id) as char(50)) as nbproduit, 
                 sum(m.pv * m.qte) AS totalfacture,
+                r.mtrecu,
+                r.relicat,
                 CASE 
                     WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
                     ELSE 'impayée' 
@@ -126,7 +130,7 @@ class FactureRepository {
                 (f2.created_at like ?
                 and f2.code = ?)
             GROUP BY 
-                f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by
+                f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by, r.mtrecu, r.relicat
             `, [dt, code]
         );
     }
@@ -143,6 +147,8 @@ class FactureRepository {
                 f2.tax as taxe, 
                 cast(count(m.produit_id) as char(50)) as nbproduit, 
                 sum(m.pv * m.qte) AS totalfacture,
+                r.mtrecu,
+                r.relicat,
                 CASE 
                     WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
                     ELSE 'impayée' 
@@ -162,7 +168,7 @@ class FactureRepository {
                 (f2.created_at like ?
                 and f2.code = ?)
             GROUP BY 
-                f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by
+                f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by, r.mtrecu, r.relicat
             `, [dt, code]
         );
     }
@@ -180,6 +186,8 @@ class FactureRepository {
             f2.tax as taxe, 
             cast(count(m.produit_id) as char(50)) as nbproduit, 
             sum(m.pv * m.qte) AS totalfacture,
+            r.mtrecu,
+            r.relicat,
             CASE 
             WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
             ELSE 'impayée' 
@@ -198,7 +206,7 @@ class FactureRepository {
             WHERE
             f2.code = ?
             GROUP BY 
-            f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by
+            f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by, r.mtrecu, r.relicat
             `, [code]
         );
     }
@@ -215,6 +223,8 @@ class FactureRepository {
             f2.tax as taxe, 
             cast(count(m.produit_id) as char(50)) as nbproduit, 
             sum(m.pv * m.qte) AS totalfacture,
+            r.mtrecu,
+            r.relicat,
             CASE 
             WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
             ELSE 'impayée' 
@@ -233,7 +243,7 @@ class FactureRepository {
             WHERE
             f2.created_at like ?
             GROUP BY 
-            f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by
+            f2.id, f2.code, c1.name, f2.client_id, f2.created_at, f2.tax, r.facture_id, r.deleted_at, r.deleted_by, r.mtrecu, r.relicat
             `, [dt]
         );
     }
@@ -401,6 +411,8 @@ class FactureRepository {
                 p2.mesure,
                 m.qte, 
                 m.pv,
+                r.mtrecu,
+                r.relicat,
                 CASE 
                     WHEN r.facture_id IS NOT NULL THEN 'Payée'
                     ELSE 'Impayée'
@@ -492,8 +504,8 @@ class FactureRepository {
 
     async regler(facture) {
         return await db.dBase.query(
-            "INSERT INTO reglements(facture_id, totalFacture, created_by, created_at) VALUES(?, ?, ?, now())",
-            [facture.facture_id, facture.total, facture.createdBy]
+            "INSERT INTO reglements(facture_id, totalFacture, mtrecu, relicat, created_by, created_at) VALUES(?, ?, ?, ?, ?, now())",
+            [facture.facture_id, facture.total, facture.mtrecu, facture.relicat, facture.createdBy]
         );
     }
 

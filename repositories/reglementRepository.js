@@ -24,7 +24,7 @@ class ReglementRepository {
   async findAll() {
     return await db.dBase.query(
       `
-                SELECT r.id, r.created_at AS createdAt, u.firstname, u.lastname, f.code as codeFacture, c.name as client, r.totalFacture as totalFacture 
+                SELECT r.id, r.created_at AS createdAt, r.mtrecu, r.relicat, u.firstname, u.lastname, f.code as codeFacture, c.name as client, r.totalFacture as totalFacture 
                 FROM reglements r 
                 inner join factures f ON r.facture_id = f.id 
                 inner join users u on r.created_by = u.id 
