@@ -463,7 +463,7 @@ exports.findAllFactureSearchCodeOrDateFact = async (request, response) => {
         
         const dt = `%` + dateFact + `%`;
 
-        if (code && dateFact) {
+        if (code && dateFact && !isNaN(dateFact)) {
             console.log('fact by code and date');
             factures = await factureRepository.findFacturesGeneralByCodeFactOrDateFact(code, dt);
         }else if (code && code != null) {
@@ -505,7 +505,7 @@ exports.findAllFactureGrosSearchCodeOrDateFact = async (request, response) => {
         
         const dt = `%` + dateFact + `%`;
 
-        if (code && dateFact) {
+        if (code && dateFact && !isNaN(dateFact)) {
             console.log('fact by code and date');
             factures = await factureRepository.findFacturesGrosByCodeFactAndDateFact(code, dt);
         }else if (code && code != null) {
@@ -547,7 +547,7 @@ exports.findAllFactureDetailSearchCodeOrDateFact = async (request, response) => 
         
         const dt = `%` + dateFact + `%`;
 
-        if (code && dateFact) {
+        if (code && dateFact && !isNaN(dateFact)) {
             console.log('fact by code and date');
             factures = await factureRepository.findFacturesDetailByCodeFactAndDateFact(code, dt);
         }else if (code && code != null) {

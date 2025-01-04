@@ -164,7 +164,7 @@ exports.findAllReglementSearchCodeOrDateReg = async (request, response) => {
         
         const dt = `%` + dateReg + `%`;
 
-        if (code && dateReg) {
+        if (code && dateReg && !isNaN(dateReg)) {
             console.log('reg by code fact and date', code + ' et ' + dt);
             reglements = await reglementRepository.findReglementByCodeFactAndDateFact(dt, code);
         }else if (code && code != null) {
