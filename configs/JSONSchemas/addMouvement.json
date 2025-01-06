@@ -18,7 +18,7 @@
       "minLength": 3
     },
     "qte": {
-      "type": "integer",
+      "type": "number",
       "minLength": 1
     }
   },

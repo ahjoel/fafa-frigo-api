@@ -25,5 +25,4 @@ module.exports = function (app) {
 
     app.post("/fafa-frigo/v1/stat/fact/archiv/r1", [authController.verifyToken], factureHandler.findAllStatArchivageR1);
     app.post("/fafa-frigo/v1/stat/fact/archiv/rc", [authController.verifyToken], factureHandler.findAllStatArchivageRC);
-
 }
