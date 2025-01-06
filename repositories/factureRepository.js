@@ -69,8 +69,8 @@ class FactureRepository {
                 f2.created_at AS createdAt, 
                 f2.tax as taxe, 
                 cast(count(m.produit_id) as char(50)) as nbproduit, 
-                sum(m.pv * m.qte) AS totalfacture,
-                sum(p2.pa * m.qte) AS margeBene,
+                ROUND(sum(m.pv * m.qte), 0) AS totalfacture,
+                ROUND(sum(p2.pa * m.qte), 0) AS margeBene,
                 r.mtrecu,
                 r.relicat,
                 CASE 
@@ -108,7 +108,7 @@ class FactureRepository {
                 f2.created_at AS createdAt, 
                 f2.tax as taxe, 
                 cast(count(m.produit_id) as char(50)) as nbproduit, 
-                sum(m.pv * m.qte) AS totalfacture,
+                ROUND(sum(m.pv * m.qte), 0) AS totalfacture,
                 r.mtrecu,
                 r.relicat,
                 CASE 
@@ -146,7 +146,7 @@ class FactureRepository {
                 f2.created_at AS createdAt, 
                 f2.tax as taxe, 
                 cast(count(m.produit_id) as char(50)) as nbproduit, 
-                sum(m.pv * m.qte) AS totalfacture,
+                ROUND(sum(m.pv * m.qte), 0) AS totalfacture,
                 r.mtrecu,
                 r.relicat,
                 CASE 
@@ -185,7 +185,7 @@ class FactureRepository {
             f2.created_at AS createdAt, 
             f2.tax as taxe, 
             cast(count(m.produit_id) as char(50)) as nbproduit, 
-            sum(m.pv * m.qte) AS totalfacture,
+            ROUND(sum(m.pv * m.qte), 0) AS totalfacture,
             r.mtrecu,
             r.relicat,
             CASE 
@@ -222,7 +222,7 @@ class FactureRepository {
             f2.created_at AS createdAt, 
             f2.tax as taxe, 
             cast(count(m.produit_id) as char(50)) as nbproduit, 
-            sum(m.pv * m.qte) AS totalfacture,
+            ROUND(sum(m.pv * m.qte), 0) AS totalfacture,
             r.mtrecu,
             r.relicat,
             CASE 
@@ -438,7 +438,7 @@ class FactureRepository {
         return (await db.dBase.query(`
         SELECT CAST(count(sous_requete.id) AS VARCHAR(255)) AS factureTotalR1Number 
         FROM (
-            SELECT f2.id as id, f2.code as code, c1.name as client, f2.created_at AS createdAt, f2.tax as taxe, count(m.produit_id) as NbProduit, sum(m.pv * m.qte) AS totalFacture,
+            SELECT f2.id as id, f2.code as code, c1.name as client, f2.created_at AS createdAt, f2.tax as taxe, count(m.produit_id) as NbProduit, ROUND(sum(m.pv * m.qte), 0) AS totalfacture,
             CASE WHEN r.facture_id IS NOT NULL THEN 'payée' ELSE 'impayée' END AS statut
             FROM mouvements m
             inner join factures f2 on m.facture_id = f2.id 

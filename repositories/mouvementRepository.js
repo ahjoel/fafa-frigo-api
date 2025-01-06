@@ -153,23 +153,23 @@ class MouvementRepository {
           p.name as produit, 
           p.categorie as categorie, 
           p.mesure,
-          sum(case 
+          ROUND(sum(case 
                   when m.created_at  < ?
                   then case m.types when 'OUT' then -1 else 1 end
                   else 0 
-              end * qte) AS st_init,
-          sum(case
+              end * qte), 2) AS st_init,
+          ROUND(sum(case
                   when m.created_at BETWEEN ? AND ?
                   AND m.types = 'ADD' then qte 
                   else 0 
-          end) AS qt_e,
-          sum(case 
+          end), 2) AS qt_e,
+          ROUND(sum(case 
                   when m.created_at BETWEEN ? AND ?
                   AND m.types = 'OUT' then qte 
                   else 0 
-              end) AS qt_s, 
-          sum(case m.types when 'OUT' then -1 else 1 end * qte) AS st_dispo, 
-          sum(case m.types when 'OUT' then -1 else 1 end * m.pv) AS margeBene, 
+              end), 2) AS qt_s, 
+          ROUND(sum(case m.types when 'OUT' then -1 else 1 end * qte), 2) AS st_dispo, 
+          ROUND(sum(case m.types when 'OUT' then -1 else 1 end * m.pv), 0) AS margeBene, 
           p.stock_min as stockMinimal
       FROM 
           mouvements m
@@ -276,8 +276,8 @@ class MouvementRepository {
           f2.created_at AS createdAt, 
           f2.tax as taxe, 
           cast(count(m.produit_id) as char(50)) as nbproduit, 
-          sum(m.pv * m.qte) AS totalfacture,
-          sum(p2.pa * m.qte) AS margeBene,
+          ROUND(sum(m.pv * m.qte), 0) AS totalfacture,
+          ROUND(sum(p2.pa * m.qte), 0) AS margeBene,
           CASE 
               WHEN r.facture_id IS NOT NULL AND r.deleted_at IS NULL AND r.deleted_by IS NULL THEN 'payée' 
               ELSE 'impayée' 
@@ -411,22 +411,22 @@ class MouvementRepository {
     return await db.dBase.query(
       `
             SELECT p.id as id, p.name as produit, p.categorie as categorie, p.mesure,
-              sum(case 
+              ROUND(sum(case 
                       when m.created_at  < '2024-12-01'
                       then case m.types when 'OUT' then -1 else 1 end
                       else 0 
-                  end * qte) AS st_init,
-              sum(case
+                  end * qte), 2) AS st_init,
+              ROUND(sum(case
                       when m.created_at BETWEEN '2024-12-01' AND now()
                       AND m.types = 'ADD' then qte 
                       else 0 
-              end) AS qt_e,
-              sum(case 
+              end), 2) AS qt_e,
+              ROUND(sum(case 
                       when m.created_at BETWEEN '2024-12-01' AND now()
                       AND m.types = 'OUT' then qte 
                       else 0 
-                  end) AS qt_s, 
-              sum(case m.types when 'OUT' then -1 else 1 end * qte) AS st_dispo, p.stock_min as stockMinimal, p.pv as pv
+                  end), 2) AS qt_s, 
+              ROUND(sum(case m.types when 'OUT' then -1 else 1 end * qte), 2) AS st_dispo, p.stock_min as stockMinimal, p.pv as pv
             FROM mouvements m
             INNER JOIN produits p on m.produit_id = p.id 
             AND m.deleted_at IS NULL
