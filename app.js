@@ -1,5 +1,7 @@
 require("dotenv").config();
 const express = require("express");
+const { exec } = require('child_process');
+const path = require('path');
 const { logger } = require("./utils/logger");
 const bodyParser = require("body-parser");
 const contentType = require("content-type");
@@ -128,6 +130,40 @@ require("./routes/produitRoute")(app);
 require("./routes/mouvementEntreeRoute")(app);
 require("./routes/factureRoute")(app);
 require("./routes/reglementRoute")(app);
+
+
+// export of db reguraly
+app.get('/export-db', (req, res) => {
+  const dbHost = process.env.FA_HOST; // Hôte MySQL
+  const dbUser = process.env.FA_USER; // Utilisateur MySQL
+  const dbPassword = process.env.FA_PASSWORD; // Mot de passe MySQL
+  const dbName = process.env.DB_NAME; // Nom de la base de données
+
+  // Nom du fichier exporté
+  const fileName = `backup_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.sql`;
+  const filePath = path.join(__dirname, fileName);
+
+  // Commande mysqldump
+  const dumpCommand = `/usr/bin/mysqldump -h ${dbHost} -u ${dbUser} -p${dbPassword} ${dbName} > ${filePath}`;
+
+  // Exécution de la commande
+  exec(dumpCommand, (error) => {
+      if (error) {
+          console.error('Erreur lors de l\'exportation de la base de données :', error);
+          return res.status(500).send('Erreur lors de l\'exportation de la base de données.');
+      }
+
+      // Envoi du fichier au client
+      res.download(filePath, fileName, (err) => {
+          if (err) {
+              console.error('Erreur lors de l\'envoi du fichier :', err);
+          }
+
+          // Supprimez le fichier après téléchargement pour éviter l'accumulation
+          exec(`rm ${filePath}`);
+      });
+  });
+});
 
 process.on("exit", () => {
   logger.error("Process exit");
