@@ -54,7 +54,7 @@ class ReglementRepository {
   async findReglementByCodeFactAndDateFact(dt, code) {
     return await db.dBase.query(
       `
-          SELECT r.id, r.created_at AS createdAt, u.firstname, u.lastname, f.code as codeFacture, c.name as client, r.totalFacture as totalFacture 
+          SELECT r.id, r.created_at AS createdAt, u.firstname, u.lastname, f.code as codeFacture, c.name as client, r.totalFacture as totalFacture, r.mtrecu, r.relicat  
           FROM reglements r 
           inner join factures f ON r.facture_id = f.id 
           inner join users u on r.created_by = u.id 
@@ -69,7 +69,7 @@ class ReglementRepository {
   async findReglementByCodeFact(code) {
     return await db.dBase.query(
       `
-          SELECT r.id, r.created_at AS createdAt, u.firstname, u.lastname, f.code as codeFacture, c.name as client, r.totalFacture as totalFacture 
+          SELECT r.id, r.created_at AS createdAt, u.firstname, u.lastname, f.code as codeFacture, c.name as client, r.totalFacture as totalFacture, r.mtrecu, r.relicat  
           FROM reglements r 
           inner join factures f ON r.facture_id = f.id 
           inner join users u on r.created_by = u.id 
@@ -84,7 +84,7 @@ class ReglementRepository {
   async findReglementByDateFact(dt) {
     return await db.dBase.query(
       `
-          SELECT r.id, r.created_at AS createdAt, u.firstname, u.lastname, f.code as codeFacture, c.name as client, r.totalFacture as totalFacture 
+          SELECT r.id, r.created_at AS createdAt, u.firstname, u.lastname, f.code as codeFacture, c.name as client, r.totalFacture as totalFacture, r.mtrecu, r.relicat 
           FROM reglements r 
           inner join factures f ON r.facture_id = f.id 
           inner join users u on r.created_by = u.id 
