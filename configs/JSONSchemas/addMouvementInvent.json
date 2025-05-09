@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "properties": {
+    "produitId": {
+      "type": "integer",
+      "minLength": 1
+    },
+    "types": {
+      "type": "string",
+      "minLength": 3
+    },
+    "qte": {
+      "type": "number",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "produitId",
+    "types",
+    "qte"
+  ],
+  "additionalProperties": false
+}

@@ -52,6 +52,82 @@ exports.addMouvementEntreeR1 = async (request, response) => {
     }
 };
 
+exports.addMouvementEntreeInventaire = async (request, response) => {
+    try {
+        const schema = require("../configs/JSONSchemas/addMouvementInvent.json");
+        const dt = new Date();
+    
+        // console.log("productObject ::", request.body);
+        const valid = jsonValidator.validate(schema, request.body);
+        if (!valid) {
+            return sendResponse(
+                response,
+                400,
+                "FAILURE",
+                jsonValidator.errors[0].message,
+                null
+            );
+        }
+        const entreeR1Object = {
+            inventaire: 'INV-' + dt.getDate(),
+            produitId: request.body.produitId,
+            types: request.body.types,
+            qte: request.body.qte,
+            createdBy: request.authUserId,
+        };
+        const result = await mouvementRepository.saveInventaire(entreeR1Object);
+        const savedEntreeInventaire = await mouvementRepository.findById(result.insertId);
+        sendResponse(
+            response,
+            200,
+            "SUCCESS",
+            "Request executed successfully",
+            savedEntreeInventaire
+        );
+    } catch (e) {
+        logger.error(request.correlationId + " ==> Error caught in [addEntreeInventaire Mouvements] ==> " + e.stack);
+        sendResponse(
+            response,
+            500,
+            "ERROR",
+            "An error occurred while processing the request",
+            null
+        );
+    }
+};
+
+exports.updateMouvementEntreeInventaire = async (request, response) => {
+    try {
+        const entreeR1Object = request.body;
+        entreeR1Object.updatedBy = request.authUserId;
+
+        const result = await mouvementRepository.updateEntreeInventaire(entreeR1Object);
+        if (!result.affectedRows) {
+            sendResponse(response, 404, "FAILURE", "Entree Inventaire not found", null);
+        } else {
+            console.log("ok");
+            const updatedEntreeR1 = await mouvementRepository.findById(request.body.id);
+            console.log("ok-1");
+            sendResponse(
+                response,
+                200,
+                "SUCCESS",
+                "Request executed successfully",
+                updatedEntreeR1
+            );
+        }
+    } catch (e) {
+        logger.error(request.correlationId + " ==> Error caught in [updateMouvementEntreeInventaire MouvementEntreeInventaire] ==> " + e.stack);
+        sendResponse(
+            response,
+            500,
+            "ERROR",
+            "An error occurred while processing the request",
+            null
+        );
+    }
+};
+
 exports.addMouvementSortieR1 = async (request, response) => {
     try {
         const sortieR1Object = {
@@ -189,6 +265,32 @@ exports.findAllMouvementEntree = async (request, response) => {
         );
     } catch (e) {
         logger.error(request.correlationId + " ==> Error caught in [findAllMouvementEntree entreeNumber] ==> " + e.stack);
+        sendResponse(
+            response,
+            500,
+            "ERROR",
+            "An error occurred while processing the request",
+            null
+        );
+    }
+};
+
+exports.findAllMouvementInventaire = async (request, response) => {
+    try {
+
+        const mouvementsInv = await mouvementRepository.findAllEntreeInventaire();
+        
+        return sendResponse(
+            response,
+            200,
+            "SUCCESS",
+            "Request executed successfully",
+            {
+                mouvementsI: mouvementsInv
+            }
+        );
+    } catch (e) {
+        logger.error(request.correlationId + " ==> Error caught in [findAllMouvementInventaire entreeNumberInv] ==> " + e.stack);
         sendResponse(
             response,
             500,

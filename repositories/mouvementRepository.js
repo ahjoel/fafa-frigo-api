@@ -15,6 +15,19 @@ class MouvementRepository {
     );
   }
 
+  async saveInventaire(mouvement) {
+    return await db.dBase.query(
+      "INSERT INTO mouvements (inventaire, produit_id, types, qte, created_by, created_at) VALUES ( ?, ?, ?, ?, ?, now());",
+      [
+        mouvement.inventaire,
+        mouvement.produitId,
+        mouvement.types,
+        mouvement.qte,
+        mouvement.createdBy,
+      ]
+    );
+  }
+
   async saveSortie(mouvement) {
     return await db.dBase.query(
       "INSERT INTO mouvements (code, produit_id, facture_id, types, qte, pv, created_by, created_at) VALUES ( ?, ?, ?, ?, ?, ?, ?, now());",
@@ -48,6 +61,29 @@ class MouvementRepository {
         mouvement.produitId,
         mouvement.fournisseurId,
         mouvement.fournisseurId,
+        mouvement.types,
+        mouvement.types,
+        mouvement.qte,
+        mouvement.qte,
+        mouvement.updatedBy,
+        mouvement.id,
+      ]
+    );
+  }
+
+  async updateEntreeInventaire(mouvement) {
+    return await db.dBase.query(
+      `UPDATE mouvements
+             SET
+                 produit_id             = CASE WHEN ? IS NOT NULL THEN ? ELSE produit_id END,
+                 types             = CASE WHEN ? IS NOT NULL THEN ? ELSE types END,
+                 qte             = CASE WHEN ? IS NOT NULL THEN ? ELSE qte END,
+                 updated_by        = ?,
+                 updated_at        = now()
+             WHERE id = ?`,
+      [
+        mouvement.produitId,
+        mouvement.produitId,
         mouvement.types,
         mouvement.types,
         mouvement.qte,
@@ -141,7 +177,33 @@ class MouvementRepository {
       AND m.types= 'ADD'
       GROUP BY m.id 
       ORDER BY m.id DESC
-      LIMIT 500
+            `
+    );
+  }
+
+  async findAllEntreeInventaire() {
+    return await db.dBase.query(
+      `SELECT m.id,
+              m.code,
+              m.produit_id      AS produitId,
+              m.types,
+              m.pv,
+              m.qte,
+              m.created_at      AS createdAt,
+              m.created_by      AS createdBy,
+              m.updated_at      As updatedAt,
+              m.updated_by      AS updatedBy,
+              m.deleted_at      As deletedAt,
+              m.deleted_by      AS deletedBy,
+              p.name            AS produit,
+              p.mesure            AS mesure,
+              p.categorie       AS model
+      FROM mouvements m    
+              INNER JOIN produits p on m.produit_id = p.id
+      WHERE m.deleted_at IS NULL
+      AND m.inventaire IS NOT NULL
+      GROUP BY m.id 
+      ORDER BY m.id DESC
             `
     );
   }
